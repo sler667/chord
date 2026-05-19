@@ -5,21 +5,21 @@ import streamlit as st
 
 NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 NOTE_TO_INDEX = {name: index for index, name in enumerate(NOTE_NAMES)}
+ENHARMONIC_EQUIV = {"Db": "C#", "Eb": "D#", "Gb": "F#", "Ab": "G#", "Bb": "A#"}
+OPEN_STRING_INDICES = [4, 9, 2, 7, 11, 4]
+STRING_NAMES = ["6(E)", "5(A)", "4(D)", "3(G)", "2(B)", "1(E)"]
 
 STYLE_PRESETS = {
     "J-Pop / Anime": {
-        "color": "#f25f5c",
-        "description": "明亮、推進感強，常見次屬、六級小和弦與懸浮張力。",
+        "description": "明亮、推進感強，常見六級小和弦、流動低音與 add9 色彩。",
         "tensions": ["add9", "sus2", "maj7", "6/9"],
     },
     "Rock": {
-        "color": "#247ba0",
-        "description": "穩定骨架、強拍明確，適合八分音符推進與開放音程。",
+        "description": "骨架明確、重拍穩，適合直接有力的和聲推進。",
         "tensions": ["sus4", "add9", "7"],
     },
     "Cinematic": {
-        "color": "#4d9078",
-        "description": "空間感大，偏好低音踏點、大片和聲與漸進旋律。",
+        "description": "空間感大，適合寬廣和弦、踏點低音與漸進旋律。",
         "tensions": ["maj7", "add9", "11", "6/9"],
     },
 }
@@ -68,7 +68,7 @@ MOOD_BONUS = {
     "Lift": {"I": 2, "IV": 2, "V": 2, "VI": 1},
     "Tension": {"ii": 2, "V": 3, "vii°": 2, "iv": 2, "bVI": 1},
     "Melancholy": {"vi": 3, "i": 2, "iv": 2, "III": 1},
-    "Wonder": {"maj7": 2, "add9": 2, "sus2": 1},
+    "Wonder": {"I": 1, "III": 1, "VI": 1},
 }
 
 ROMAN_INTERVALS = {
@@ -124,28 +124,72 @@ QUALITY_INTERVALS = {
     "sus4": [0, 5, 7],
 }
 
+SCALE_INTERVALS = {
+    "major": [0, 2, 4, 5, 7, 9, 11],
+    "minor": [0, 2, 3, 5, 7, 8, 10],
+}
+
+DIATONIC_TRIADS = {
+    "major": ["I", "ii", "iii", "IV", "V", "vi", "vii°"],
+    "minor": ["i", "ii°", "III", "iv", "v", "VI", "VII"],
+}
+
+GUITAR_CHORD_LIBRARY = {
+    "C": {"frets": ["x", 3, 2, 0, 1, 0], "fingers": ["", 3, 2, 0, 1, 0]},
+    "Cm": {"frets": ["x", 3, 5, 5, 4, 3], "fingers": ["", 1, 3, 4, 2, 1]},
+    "D": {"frets": ["x", "x", 0, 2, 3, 2], "fingers": ["", "", 0, 1, 3, 2]},
+    "Dm": {"frets": ["x", "x", 0, 2, 3, 1], "fingers": ["", "", 0, 2, 3, 1]},
+    "E": {"frets": [0, 2, 2, 1, 0, 0], "fingers": [0, 2, 3, 1, 0, 0]},
+    "Em": {"frets": [0, 2, 2, 0, 0, 0], "fingers": [0, 2, 3, 0, 0, 0]},
+    "F": {"frets": [1, 3, 3, 2, 1, 1], "fingers": [1, 3, 4, 2, 1, 1]},
+    "Fm": {"frets": [1, 3, 3, 1, 1, 1], "fingers": [1, 3, 4, 1, 1, 1]},
+    "G": {"frets": [3, 2, 0, 0, 0, 3], "fingers": [2, 1, 0, 0, 0, 3]},
+    "Gm": {"frets": [3, 5, 5, 3, 3, 3], "fingers": [1, 3, 4, 1, 1, 1]},
+    "A": {"frets": ["x", 0, 2, 2, 2, 0], "fingers": ["", 0, 1, 2, 3, 0]},
+    "Am": {"frets": ["x", 0, 2, 2, 1, 0], "fingers": ["", 0, 2, 3, 1, 0]},
+    "B": {"frets": ["x", 2, 4, 4, 4, 2], "fingers": ["", 1, 3, 4, 4, 1]},
+    "Bm": {"frets": ["x", 2, 4, 4, 3, 2], "fingers": ["", 1, 3, 4, 2, 1]},
+    "C#": {"frets": ["x", 4, 6, 6, 6, 4], "fingers": ["", 1, 3, 4, 4, 1]},
+    "C#m": {"frets": ["x", 4, 6, 6, 5, 4], "fingers": ["", 1, 3, 4, 2, 1]},
+    "D#": {"frets": ["x", 6, 8, 8, 8, 6], "fingers": ["", 1, 3, 4, 4, 1]},
+    "D#m": {"frets": ["x", 6, 8, 8, 7, 6], "fingers": ["", 1, 3, 4, 2, 1]},
+    "F#": {"frets": [2, 4, 4, 3, 2, 2], "fingers": [1, 3, 4, 2, 1, 1]},
+    "F#m": {"frets": [2, 4, 4, 2, 2, 2], "fingers": [1, 3, 4, 1, 1, 1]},
+    "G#": {"frets": [4, 6, 6, 5, 4, 4], "fingers": [1, 3, 4, 2, 1, 1]},
+    "G#m": {"frets": [4, 6, 6, 4, 4, 4], "fingers": [1, 3, 4, 1, 1, 1]},
+    "A#": {"frets": [6, 8, 8, 7, 6, 6], "fingers": [1, 3, 4, 2, 1, 1]},
+    "A#m": {"frets": [6, 8, 8, 6, 6, 6], "fingers": [1, 3, 4, 1, 1, 1]},
+    "Bdim": {"frets": ["x", 2, 3, 4, 3, "x"], "fingers": ["", 1, 2, 4, 3, ""]},
+    "C#dim": {"frets": ["x", 4, 5, 6, 5, "x"], "fingers": ["", 1, 2, 4, 3, ""]},
+    "D#dim": {"frets": ["x", 6, 7, 8, 7, "x"], "fingers": ["", 1, 2, 4, 3, ""]},
+    "Fdim": {"frets": ["x", 8, 9, 10, 9, "x"], "fingers": ["", 1, 2, 4, 3, ""]},
+    "Gdim": {"frets": ["x", 10, 11, 12, 11, "x"], "fingers": ["", 1, 2, 4, 3, ""]},
+    "Adim": {"frets": ["x", 0, 1, 2, 1, "x"], "fingers": ["", 0, 1, 3, 2, ""]},
+}
+
+
+def normalize_note(note: str) -> str:
+    return ENHARMONIC_EQUIV.get(note, note)
+
 
 def note_name(index: int) -> str:
     return NOTE_NAMES[index % 12]
-
-
-def build_chord_name(root: str, quality: str, extension: str) -> str:
-    suffix_map = {
-        "maj": "",
-        "min": "m",
-        "dim": "dim",
-        "sus2": "sus2",
-        "sus4": "sus4",
-    }
-    return f"{root}{suffix_map[quality]}{extension}"
 
 
 def scale_mode_label(mode: str) -> str:
     return "Major" if mode == "major" else "Minor"
 
 
+def quality_suffix(quality: str) -> str:
+    return {"maj": "", "min": "m", "dim": "dim", "sus2": "sus2", "sus4": "sus4"}[quality]
+
+
+def build_chord_name(root: str, quality: str, extension: str) -> str:
+    return f"{root}{quality_suffix(quality)}{extension}"
+
+
 def chord_from_roman(key_root: str, mode: str, roman: str, extension: str = "") -> dict:
-    root_index = NOTE_TO_INDEX[key_root]
+    root_index = NOTE_TO_INDEX[normalize_note(key_root)]
     semitone = ROMAN_INTERVALS[mode][roman]
     quality = BASE_QUALITIES[roman]
 
@@ -174,20 +218,21 @@ def candidate_extensions(style: str, mood: str, roman: str, quality: str) -> lis
         preferred.append("add9")
     if mood == "Wonder":
         preferred.extend(["add9", "maj7"])
-    options = [""] + preferred
-    deduped = []
-    for option in options:
-        if option not in deduped:
-            deduped.append(option)
-    return deduped
+
+    options = [""]
+    for option in preferred:
+        if option not in options:
+            options.append(option)
+    return options
 
 
 def weighted_choice(options: list[tuple[str, int]], style: str, mood: str, last_roman: str) -> str:
     pool = []
     for roman, weight in options:
-        weight += STYLE_BONUS.get(style, {}).get((last_roman, roman), 0)
-        weight += MOOD_BONUS.get(mood, {}).get(roman, 0)
-        pool.extend([roman] * max(weight, 1))
+        adjusted = weight
+        adjusted += STYLE_BONUS.get(style, {}).get((last_roman, roman), 0)
+        adjusted += MOOD_BONUS.get(mood, {}).get(roman, 0)
+        pool.extend([roman] * max(adjusted, 1))
     return random.choice(pool)
 
 
@@ -198,9 +243,7 @@ def generate_progression(key_root: str, mode: str, style: str, mood: str, bars: 
         quality = BASE_QUALITIES[current]
         extension = random.choice(candidate_extensions(style, mood, current, quality))
         progression.append(chord_from_roman(key_root, mode, current, extension))
-        next_candidates = [
-            item for item in TRANSITIONS.get(current, []) if item[0] in ROMAN_INTERVALS[mode]
-        ]
+        next_candidates = [item for item in TRANSITIONS.get(current, []) if item[0] in ROMAN_INTERVALS[mode]]
         if not next_candidates:
             next_candidates = [(seed_roman, 1)]
         current = weighted_choice(next_candidates, style, mood, current)
@@ -224,6 +267,7 @@ def suggest_next_chords(key_root: str, mode: str, style: str, mood: str, last_ro
 def voicing_intervals(chord: dict, style: str) -> list[int]:
     quality = chord["quality"]
     extension = chord["extension"]
+
     if quality in {"sus2", "sus4"}:
         intervals = QUALITY_INTERVALS[quality][:]
     else:
@@ -247,7 +291,6 @@ def voicing_intervals(chord: dict, style: str) -> list[int]:
 def piano_voicing(chord: dict, style: str) -> dict:
     root_index = NOTE_TO_INDEX[chord["root"]]
     intervals = voicing_intervals(chord, style)
-
     left_hand = [f"{note_name(root_index)}2", f"{note_name(root_index + 7)}3"]
     if style == "Cinematic":
         left_hand.append(f"{note_name(root_index)}3")
@@ -259,7 +302,6 @@ def piano_voicing(chord: dict, style: str) -> dict:
 
     if style == "J-Pop / Anime" and len(right_hand) >= 3:
         right_hand = right_hand[:2] + right_hand[-1:] + right_hand[2:-1]
-
     return {"left": left_hand, "right": right_hand}
 
 
@@ -279,25 +321,24 @@ def melody_sketch(progression: list[dict], style: str) -> list[list[str]]:
     last_pitch = None
     for chord in progression:
         tones = melody_tone_pool(chord)
-        if last_pitch is None:
-            chosen = random.choice(tones)
-        else:
-            chosen = min(tones, key=lambda pitch: abs(pitch - last_pitch))
-        passing = chosen + random.choice([-2, 2]) if style != "Rock" else chosen + 2
-        bar_notes = [
-            f"{note_name(chosen)}5",
-            f"{note_name(passing)}5",
-            f"{note_name(chosen + 2)}5",
-            f"{note_name(chosen)}5",
-        ]
-        contour.append(bar_notes)
+        chosen = random.choice(tones) if last_pitch is None else min(tones, key=lambda pitch: abs(pitch - last_pitch))
+        passing = chosen + (2 if style == "Rock" else random.choice([-2, 2]))
+        contour.append(
+            [
+                f"{note_name(chosen)}5",
+                f"{note_name(passing)}5",
+                f"{note_name(chosen + 2)}5",
+                f"{note_name(chosen)}5",
+            ]
+        )
         last_pitch = chosen
     return contour
 
 
 def progression_text(progression: list[dict], key_root: str, mode: str) -> str:
     tonic = f"{key_root} {scale_mode_label(mode)}"
-    return " | ".join(f"{chord['roman']} ({chord['label']})" for chord in progression) + f"  [{tonic}]"
+    body = " | ".join(f"{chord['roman']} ({chord['label']})" for chord in progression)
+    return f"{body}  [{tonic}]"
 
 
 def render_voicing_cards(progression: list[dict], style: str, melody: list[list[str]]) -> None:
@@ -310,6 +351,221 @@ def render_voicing_cards(progression: list[dict], style: str, melody: list[list[
             st.write(f"Melody sketch: `{'  '.join(melody[index - 1])}`")
 
 
+def scale_note_set(key_root: str, mode: str) -> set[int]:
+    tonic = NOTE_TO_INDEX[normalize_note(key_root)]
+    return {(tonic + interval) % 12 for interval in SCALE_INTERVALS[mode]}
+
+
+def build_fretboard_rows(key_root: str, mode: str, max_fret: int = 12) -> list[list[dict]]:
+    tonic = NOTE_TO_INDEX[normalize_note(key_root)]
+    scale_notes = scale_note_set(key_root, mode)
+    rows = []
+    for string_index, open_note in enumerate(OPEN_STRING_INDICES):
+        row = []
+        for fret in range(max_fret + 1):
+            note_index = (open_note + fret) % 12
+            row.append(
+                {
+                    "string": STRING_NAMES[string_index],
+                    "fret": fret,
+                    "note": note_name(note_index),
+                    "in_scale": note_index in scale_notes,
+                    "is_root": note_index == tonic,
+                }
+            )
+        rows.append(row)
+    return rows
+
+
+def render_fretboard(key_root: str, mode: str) -> None:
+    rows = build_fretboard_rows(key_root, mode)
+    header = "".join(f"<div class='fret-label'>{fret}</div>" for fret in range(13))
+    html_parts = [f"<div class='fretboard-header'><div class='string-label'></div>{header}</div>"]
+    for row in rows:
+        row_html = [f"<div class='string-label'>{row[0]['string']}</div>"]
+        for cell in row:
+            if cell["is_root"]:
+                cls = "fret-cell root"
+            elif cell["in_scale"]:
+                cls = "fret-cell scale"
+            else:
+                cls = "fret-cell off"
+            row_html.append(f"<div class='{cls}'>{cell['note']}</div>")
+        html_parts.append(f"<div class='fret-row'>{''.join(row_html)}</div>")
+    st.markdown("".join(html_parts), unsafe_allow_html=True)
+
+
+def chord_symbol(root: str, quality: str) -> str:
+    return f"{root}{quality_suffix(quality)}"
+
+
+def diatonic_guitar_chords(key_root: str, mode: str) -> list[dict]:
+    chords = []
+    for roman in DIATONIC_TRIADS[mode]:
+        chord = chord_from_roman(key_root, mode, roman)
+        symbol = chord_symbol(chord["root"], chord["quality"])
+        chords.append(
+            {
+                "roman": roman,
+                "symbol": symbol,
+                "diagram": GUITAR_CHORD_LIBRARY.get(symbol),
+            }
+        )
+    return chords
+
+
+def diagram_start_fret(frets: list) -> int:
+    numeric_frets = [fret for fret in frets if isinstance(fret, int) and fret > 0]
+    if not numeric_frets:
+        return 1
+    minimum = min(numeric_frets)
+    return 1 if minimum <= 4 else minimum
+
+
+def render_chord_diagram(symbol: str, diagram: dict | None, roman: str) -> None:
+    with st.container(border=True):
+        st.markdown(f"**{roman} · {symbol}**")
+        if not diagram:
+            st.write("這個和弦目前還沒有內建指法圖。")
+            return
+
+        frets = diagram["frets"]
+        fingers = diagram["fingers"]
+        start_fret = diagram_start_fret(frets)
+        top_markers = []
+        for fret in frets:
+            if fret == "x":
+                top_markers.append("<div class='top-marker muted'>x</div>")
+            elif fret == 0:
+                top_markers.append("<div class='top-marker open'>o</div>")
+            else:
+                top_markers.append("<div class='top-marker'>&nbsp;</div>")
+
+        grid_cells = []
+        for string_number in range(6):
+            for fret_offset in range(5):
+                absolute_fret = start_fret + fret_offset
+                cell_class = "diagram-cell"
+                label = ""
+                if frets[string_number] == absolute_fret:
+                    finger_text = fingers[string_number]
+                    label = "" if finger_text in {"", 0} else str(finger_text)
+                    cell_class += " active"
+                grid_cells.append(f"<div class='{cell_class}'>{label}</div>")
+
+        st.markdown(
+            f"""
+            <div class="diagram-wrap">
+                <div class="diagram-top">{''.join(top_markers)}</div>
+                <div class="diagram-grid">{''.join(grid_cells)}</div>
+                <div class="diagram-footer">Fret {start_fret} to {start_fret + 4}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+
+def render_arranger_page() -> None:
+    left, right = st.columns([1.08, 1.42], gap="large")
+
+    with left:
+        st.subheader("編曲方向")
+        key_root = st.selectbox("Key", NOTE_NAMES, index=0)
+        mode = st.radio("Mode", ["major", "minor"], index=0, horizontal=True, format_func=scale_mode_label)
+        style = st.selectbox("Style", list(STYLE_PRESETS.keys()))
+        mood = st.selectbox("Mood", ["Lift", "Tension", "Melancholy", "Wonder"])
+        roman_choices = list(ROMAN_INTERVALS[mode].keys())
+        seed_roman = st.selectbox("Current chord / starting point", roman_choices, index=0)
+        bars = st.slider("How many bars to sketch", min_value=4, max_value=12, value=8)
+
+        if st.button("Generate New Idea", type="primary", use_container_width=True):
+            st.session_state.seed += 1
+
+        st.markdown(
+            f"""
+            <div class="info-card">
+                <strong>{style}</strong><br>
+                {STYLE_PRESETS[style]["description"]}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with right:
+        st.subheader("下一個和弦建議")
+        suggestions = suggest_next_chords(key_root, mode, style, mood, seed_roman)
+        if suggestions:
+            columns = st.columns(len(suggestions))
+            for column, chord in zip(columns, suggestions):
+                with column:
+                    st.metric(chord["roman"], chord["label"])
+        else:
+            st.info("這個起點目前沒有對應建議，換個 mode 或起始和弦就能繼續。")
+
+    random.seed(st.session_state.seed)
+    progression = generate_progression(key_root, mode, style, mood, bars, seed_roman)
+    melody = melody_sketch(progression, style)
+
+    st.subheader("Progression Draft")
+    st.code(progression_text(progression, key_root, mode), language="text")
+
+    col_a, col_b = st.columns([1.12, 0.88], gap="large")
+    with col_a:
+        st.subheader("鋼琴配置")
+        render_voicing_cards(progression, style, melody)
+
+    with col_b:
+        st.subheader("使用提示")
+        st.write("左手先穩住根音與五度，右手再依段落大小決定要不要加滿色彩音。")
+        st.write("主歌可以保守一些，只留三和弦或 add9；副歌再把上方旋律整體抬高一個八度。")
+
+        st.subheader("這頁會幫你什麼")
+        st.write("1. 給你下一個和弦的方向。")
+        st.write("2. 自動延伸成一段可用的 progression 草稿。")
+        st.write("3. 直接把每小節攤成鋼琴配置與簡單旋律線。")
+
+
+def render_guitar_page() -> None:
+    st.subheader("吉他指板與和弦圖")
+    col_left, col_right = st.columns([1, 1], gap="large")
+
+    with col_left:
+        guitar_key = st.selectbox("調性根音", NOTE_NAMES, index=0, key="guitar_key")
+        guitar_mode = st.radio(
+            "音階模式",
+            ["major", "minor"],
+            index=0,
+            horizontal=True,
+            key="guitar_mode",
+            format_func=scale_mode_label,
+        )
+        st.markdown(
+            """
+            <div class="info-card">
+                Root 會用紅色標示。<br>
+                同一個調內的其他音階音會用藍綠色標示。<br>
+                目前顯示 0 到 12 fret，方便你快速找位置。
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with col_right:
+        scale_notes = [note_name(index) for index in sorted(scale_note_set(guitar_key, guitar_mode))]
+        st.subheader(f"{guitar_key} {scale_mode_label(guitar_mode)} 音階")
+        st.write("Scale notes: " + " - ".join(scale_notes))
+        st.write("下方也會列出這個調常見的七個自然和弦，並顯示可直接按的吉他指法圖。")
+
+    render_fretboard(guitar_key, guitar_mode)
+
+    st.subheader("Diatonic Chord Shapes")
+    chords = diatonic_guitar_chords(guitar_key, guitar_mode)
+    columns = st.columns(3)
+    for index, chord in enumerate(chords):
+        with columns[index % 3]:
+            render_chord_diagram(chord["symbol"], chord["diagram"], chord["roman"])
+
+
 st.set_page_config(page_title="Chord Canvas Demo", page_icon="🎹", layout="wide")
 
 if "seed" not in st.session_state:
@@ -320,10 +576,11 @@ st.markdown(
     <style>
     .hero {
         padding: 1.2rem 1.4rem;
-        border-radius: 22px;
+        border-radius: 24px;
         background:
-            radial-gradient(circle at top left, rgba(242, 95, 92, 0.22), transparent 34%),
-            linear-gradient(135deg, #111827 0%, #19253a 45%, #243b53 100%);
+            radial-gradient(circle at top left, rgba(250, 173, 20, 0.18), transparent 28%),
+            radial-gradient(circle at bottom right, rgba(47, 128, 237, 0.16), transparent 34%),
+            linear-gradient(135deg, #101827 0%, #18283a 48%, #21415e 100%);
         color: #f8fafc;
         margin-bottom: 1rem;
     }
@@ -333,13 +590,99 @@ st.markdown(
     }
     .hero p {
         margin: 0;
-        color: #dbe4f0;
+        color: #d7e4f1;
     }
-    .mini-note {
-        padding: 0.8rem 1rem;
+    .info-card {
+        padding: 0.9rem 1rem;
         border-radius: 16px;
         background: #f8fafc;
+        border: 1px solid #d9e3ef;
+        line-height: 1.55;
+    }
+    .fretboard-header, .fret-row {
+        display: grid;
+        grid-template-columns: 88px repeat(13, minmax(36px, 1fr));
+        gap: 6px;
+        margin-bottom: 6px;
+        align-items: center;
+    }
+    .string-label, .fret-label {
+        font-size: 0.82rem;
+        color: #52606d;
+        text-align: center;
+    }
+    .fret-cell {
+        min-height: 38px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
         border: 1px solid #d7e0ea;
+        background: #ffffff;
+        color: #9aa5b1;
+    }
+    .fret-cell.scale {
+        background: #e6f4f1;
+        color: #0f766e;
+        border-color: #99f6e4;
+        font-weight: 700;
+    }
+    .fret-cell.root {
+        background: #fff1f2;
+        color: #be123c;
+        border-color: #fecdd3;
+        font-weight: 700;
+    }
+    .diagram-wrap {
+        padding: 0.2rem 0 0.1rem 0;
+    }
+    .diagram-top {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+        margin-bottom: 4px;
+    }
+    .top-marker {
+        text-align: center;
+        font-size: 0.9rem;
+        color: #52606d;
+        min-height: 20px;
+    }
+    .top-marker.muted {
+        color: #b91c1c;
+        font-weight: 700;
+    }
+    .top-marker.open {
+        color: #0f766e;
+        font-weight: 700;
+    }
+    .diagram-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(5, 34px);
+        gap: 6px;
+    }
+    .diagram-cell {
+        border: 1px solid #d7e0ea;
+        border-radius: 10px;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
+        color: #102a43;
+    }
+    .diagram-cell.active {
+        background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
+        border-color: #f97316;
+        color: #ffffff;
+        font-weight: 700;
+    }
+    .diagram-footer {
+        margin-top: 0.45rem;
+        font-size: 0.8rem;
+        color: #52606d;
     }
     </style>
     """,
@@ -350,71 +693,20 @@ st.markdown(
     """
     <div class="hero">
         <h1>Chord Canvas</h1>
-        <p>給日系、搖滾、電影配樂使用的編曲草稿工具。先幫你想下一個和弦，再把它攤成純鋼琴配置與簡單旋律線。</p>
+        <p>第一頁幫你產生和弦與鋼琴配置，第二頁切到吉他視角，直接看指板音階位置與常用和弦按法。</p>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-left, right = st.columns([1.1, 1.4], gap="large")
+page = st.radio(
+    "Page",
+    ["1. Arranger", "2. Guitar"],
+    horizontal=True,
+    label_visibility="collapsed",
+)
 
-with left:
-    st.subheader("Direction")
-    key_root = st.selectbox("Key", NOTE_NAMES, index=0)
-    mode = st.radio("Mode", ["major", "minor"], index=0, horizontal=True, format_func=scale_mode_label)
-    style = st.selectbox("Style", list(STYLE_PRESETS.keys()))
-    mood = st.selectbox("Mood", ["Lift", "Tension", "Melancholy", "Wonder"])
-    roman_choices = list(ROMAN_INTERVALS[mode].keys())
-    seed_roman = st.selectbox("Current chord / starting point", roman_choices, index=0)
-    bars = st.slider("How many bars to sketch", min_value=4, max_value=12, value=8)
-
-    if st.button("Generate New Idea", type="primary", use_container_width=True):
-        st.session_state.seed += 1
-
-    random.seed(st.session_state.seed)
-    st.markdown(
-        f"""
-        <div class="mini-note">
-            <strong>{style}</strong><br>
-            {STYLE_PRESETS[style]["description"]}
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-with right:
-    st.subheader("Next Chord Suggestions")
-    suggestions = suggest_next_chords(key_root, mode, style, mood, seed_roman)
-    if suggestions:
-        columns = st.columns(len(suggestions))
-        for column, chord in zip(columns, suggestions):
-            with column:
-                st.metric(chord["roman"], chord["label"])
-    else:
-        st.info("這個起點目前沒有對應建議，換個 mode 或起始和弦就能繼續。")
-
-random.seed(st.session_state.seed)
-progression = generate_progression(key_root, mode, style, mood, bars, seed_roman)
-melody = melody_sketch(progression, style)
-
-st.subheader("Progression Draft")
-st.code(progression_text(progression, key_root, mode), language="text")
-
-col_a, col_b = st.columns([1.1, 0.9], gap="large")
-
-with col_a:
-    st.subheader("Piano Voicing")
-    render_voicing_cards(progression, style, melody)
-
-with col_b:
-    st.subheader("Arrangement Notes")
-    st.write("Use the left hand as the harmonic spine, then thin or thicken the right hand depending on section size.")
-    st.write("For verse-like sections, keep the top melody note sparse; for chorus-like sections, repeat the first two bars one octave higher.")
-
-    st.subheader("How To Use This Demo")
-    st.write("1. Choose key, mode, and style.")
-    st.write("2. Start from your current chord and generate a fresh progression idea.")
-    st.write("3. Take the suggested voicing into your DAW and adjust rhythm first, then color tones.")
-
-    st.subheader("GitHub Ready")
-    st.write("This demo is a small Streamlit app, so it is easy to push to GitHub and deploy later on Streamlit Community Cloud or another Python host.")
+if page == "1. Arranger":
+    render_arranger_page()
+else:
+    render_guitar_page()
