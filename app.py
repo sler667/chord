@@ -590,33 +590,83 @@ if "seed" not in st.session_state:
 st.markdown(
     """
     <style>
-    .hero {
-        padding: 1.2rem 1.4rem;
-        border-radius: 24px;
+    .stApp {
         background:
-            radial-gradient(circle at top left, rgba(250, 173, 20, 0.18), transparent 28%),
-            radial-gradient(circle at bottom right, rgba(47, 128, 237, 0.16), transparent 34%),
-            linear-gradient(135deg, #101827 0%, #18283a 48%, #21415e 100%);
+            radial-gradient(circle at top right, rgba(120, 119, 198, 0.06), transparent 26%),
+            linear-gradient(180deg, #f4f6f8 0%, #eef2f5 100%);
+        color: #17212b;
+    }
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2.5rem;
+        max-width: 1280px;
+    }
+    .stRadio > div {
+        gap: 0.55rem;
+    }
+    .stButton > button,
+    .stDownloadButton > button {
+        border-radius: 12px;
+        border: 1px solid #243b53;
+        background: linear-gradient(180deg, #243b53 0%, #192534 100%);
         color: #f8fafc;
-        margin-bottom: 1rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+    }
+    .stButton > button:hover,
+    .stDownloadButton > button:hover {
+        border-color: #102a43;
+        background: linear-gradient(180deg, #2c4a67 0%, #1d3147 100%);
+    }
+    div[data-testid="stMetric"] {
+        background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+        border: 1px solid #d9e2ec;
+        border-radius: 14px;
+        padding: 0.75rem 0.85rem;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+    }
+    div[data-testid="stCodeBlock"] {
+        border-radius: 14px;
+        border: 1px solid #d9e2ec;
+    }
+    div[data-testid="stVerticalBlock"] div[data-testid="stContainer"] {
+        border-radius: 14px;
+    }
+    .hero {
+        padding: 1.35rem 1.5rem;
+        border-radius: 18px;
+        background:
+            linear-gradient(135deg, rgba(179, 123, 58, 0.14), transparent 18%),
+            linear-gradient(135deg, #10161f 0%, #16212d 48%, #1e2d3a 100%);
+        color: #f8fafc;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.18);
+        margin-bottom: 1.1rem;
     }
     .hero h1 {
         margin: 0 0 0.4rem 0;
         font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
     }
     .hero p {
         margin: 0;
-        color: #d7e4f1;
-    }
-    .info-card {
-        padding: 0.9rem 1rem;
-        border-radius: 16px;
-        background: #f8fafc;
-        border: 1px solid #d9e3ef;
+        color: #c8d4df;
+        max-width: 760px;
         line-height: 1.55;
     }
+    .info-card {
+        padding: 0.95rem 1rem;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+        border: 1px solid #d9e2ec;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+        line-height: 1.6;
+        color: #243b53;
+    }
     .fretboard-shell {
-        margin-top: 0.8rem;
+        margin-top: 0.95rem;
     }
     .fretboard-header, .fret-row {
         display: grid;
@@ -628,40 +678,41 @@ st.markdown(
         margin-bottom: 0.45rem;
     }
     .fretboard-board {
-        padding: 1rem 0.75rem 0.75rem 0.75rem;
-        border-radius: 22px;
+        padding: 1.1rem 0.85rem 0.85rem 0.85rem;
+        border-radius: 18px;
         background:
-            linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.08)),
+            linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.14)),
             repeating-linear-gradient(
                 90deg,
-                #8a5a2e 0px,
-                #8a5a2e 24px,
+                #7a4d27 0px,
                 #7a4d27 24px,
-                #7a4d27 48px,
-                #916033 48px,
-                #916033 72px
+                #6e431f 24px,
+                #6e431f 48px,
+                #85532a 48px,
+                #85532a 72px
             );
-        border: 1px solid #70451f;
+        border: 1px solid #5b3819;
         box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.22),
-            inset 0 -8px 18px rgba(43, 23, 8, 0.25),
-            0 14px 30px rgba(15, 23, 42, 0.16);
+            inset 0 1px 0 rgba(255,255,255,0.16),
+            inset 0 -10px 20px rgba(33, 18, 8, 0.28),
+            0 14px 30px rgba(15, 23, 42, 0.14);
     }
     .string-label, .fret-label {
         font-size: 0.82rem;
         color: #52606d;
         text-align: center;
+        font-weight: 600;
     }
     .fret-cell {
         min-height: 42px;
-        border-right: 4px solid rgba(221, 226, 232, 0.82);
-        border-left: 1px solid rgba(111, 78, 44, 0.28);
+        border-right: 4px solid rgba(213, 219, 226, 0.82);
+        border-left: 1px solid rgba(86, 57, 31, 0.3);
         display: flex;
         align-items: center;
         justify-content: center;
         position: relative;
         background:
-            linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.06));
+            linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.08));
     }
     .fret-cell::before {
         content: "";
@@ -671,61 +722,61 @@ st.markdown(
         top: 50%;
         height: 3px;
         transform: translateY(-50%);
-        background: linear-gradient(180deg, #f7f7f6 0%, #cfd3d7 50%, #8d949d 100%);
-        box-shadow: 0 1px 0 rgba(255,255,255,0.35);
+        background: linear-gradient(180deg, #f2f4f7 0%, #c4cbd3 48%, #7b8794 100%);
+        box-shadow: 0 1px 0 rgba(255,255,255,0.26);
     }
     .fret-cell.off::before {
-        opacity: 0.92;
+        opacity: 0.95;
     }
     .note-marker {
         position: relative;
         z-index: 1;
-        width: 30px;
-        height: 30px;
+        width: 28px;
+        height: 28px;
         border-radius: 999px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         font-weight: 700;
         box-shadow:
-            inset 0 1px 1px rgba(255,255,255,0.3),
-            0 5px 10px rgba(0,0,0,0.2);
+            inset 0 1px 1px rgba(255,255,255,0.2),
+            0 4px 10px rgba(0,0,0,0.22);
     }
     .note-marker.scale {
-        background: linear-gradient(180deg, #c4fff5 0%, #46c7b7 100%);
-        color: #083344;
-        border: 1px solid rgba(255,255,255,0.5);
+        background: linear-gradient(180deg, #d7e8f7 0%, #6b8fb1 100%);
+        color: #f8fafc;
+        border: 1px solid rgba(255,255,255,0.28);
     }
     .note-marker.root {
-        background: linear-gradient(180deg, #ffd0d8 0%, #ef476f 100%);
-        color: #fff7f8;
-        border: 1px solid rgba(255,255,255,0.5);
+        background: linear-gradient(180deg, #f2d3a8 0%, #b7792c 100%);
+        color: #fffaf5;
+        border: 1px solid rgba(255,255,255,0.26);
     }
     .fret-cell.scale,
     .fret-cell.root {
         font-weight: 700;
     }
     .diagram-wrap {
-        padding: 0.75rem 0.8rem 0.55rem 0.8rem;
-        border-radius: 18px;
+        padding: 0.8rem 0.85rem 0.6rem 0.85rem;
+        border-radius: 14px;
     }
     .diagram-wrap.wood {
         background:
-            linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.08)),
+            linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.14)),
             repeating-linear-gradient(
                 90deg,
-                #9a6737 0px,
-                #9a6737 18px,
-                #88572d 18px,
-                #88572d 36px,
-                #a16e3d 36px,
-                #a16e3d 54px
+                #8f5c31 0px,
+                #8f5c31 18px,
+                #7b4c26 18px,
+                #7b4c26 36px,
+                #98663a 36px,
+                #98663a 54px
             );
-        border: 1px solid #73471f;
+        border: 1px solid #643d1b;
         box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.2),
-            inset 0 -8px 14px rgba(55, 31, 12, 0.22);
+            inset 0 1px 0 rgba(255,255,255,0.16),
+            inset 0 -8px 14px rgba(55, 31, 12, 0.24);
     }
     .diagram-top {
         display: grid;
@@ -735,16 +786,17 @@ st.markdown(
     }
     .top-marker {
         text-align: center;
-        font-size: 0.9rem;
-        color: #52606d;
+        font-size: 0.82rem;
+        color: #e8dccf;
         min-height: 20px;
+        font-weight: 600;
     }
     .top-marker.muted {
-        color: #b91c1c;
+        color: #fca5a5;
         font-weight: 700;
     }
     .top-marker.open {
-        color: #0f766e;
+        color: #bfdbfe;
         font-weight: 700;
     }
     .diagram-grid {
@@ -758,7 +810,7 @@ st.markdown(
         display: flex;
         align-items: center;
         justify-content: center;
-        border-right: 4px solid rgba(225, 229, 233, 0.86);
+        border-right: 4px solid rgba(220, 225, 231, 0.86);
     }
     .diagram-cell::before {
         content: "";
@@ -768,8 +820,8 @@ st.markdown(
         top: 50%;
         height: 3px;
         transform: translateY(-50%);
-        background: linear-gradient(180deg, #f9fafb 0%, #d5dae0 45%, #8d949d 100%);
-        box-shadow: 0 1px 0 rgba(255,255,255,0.32);
+        background: linear-gradient(180deg, #edf2f7 0%, #cbd2d9 45%, #7b8794 100%);
+        box-shadow: 0 1px 0 rgba(255,255,255,0.24);
     }
     .diagram-cell.active {
         font-weight: 700;
@@ -783,17 +835,17 @@ st.markdown(
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(180deg, #ffd089 0%, #ea7a21 100%);
+        background: linear-gradient(180deg, #e9c89b 0%, #a96c28 100%);
         color: #fffaf5;
-        border: 1px solid rgba(255,255,255,0.45);
+        border: 1px solid rgba(255,255,255,0.24);
         box-shadow:
-            inset 0 1px 1px rgba(255,255,255,0.25),
+            inset 0 1px 1px rgba(255,255,255,0.18),
             0 4px 8px rgba(0,0,0,0.22);
     }
     .diagram-footer {
         margin-top: 0.45rem;
         font-size: 0.8rem;
-        color: #f8ebe0;
+        color: #ead8c4;
         text-align: center;
     }
     </style>
@@ -805,7 +857,7 @@ st.markdown(
     """
     <div class="hero">
         <h1>Chord Canvas</h1>
-        <p>第一頁幫你產生和弦與鋼琴配置，第二頁切到吉他視角，直接看指板音階位置與常用和弦按法。</p>
+        <p>以編曲與樂器實作為核心的和聲工作台。Arranger 負責 progression 與 piano voicing，Guitar 負責指板定位與 chord shape 參考。</p>
     </div>
     """,
     unsafe_allow_html=True,
