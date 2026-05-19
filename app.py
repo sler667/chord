@@ -380,18 +380,28 @@ def build_fretboard_rows(key_root: str, mode: str, max_fret: int = 12) -> list[l
 def render_fretboard(key_root: str, mode: str) -> None:
     rows = build_fretboard_rows(key_root, mode)
     header = "".join(f"<div class='fret-label'>{fret}</div>" for fret in range(13))
-    html_parts = [f"<div class='fretboard-header'><div class='string-label'></div>{header}</div>"]
+    html_parts = [
+        "<div class='fretboard-shell'>",
+        f"<div class='fretboard-header'><div class='string-label'></div>{header}</div>",
+        "<div class='fretboard-board'>",
+    ]
     for row in rows:
         row_html = [f"<div class='string-label'>{row[0]['string']}</div>"]
         for cell in row:
             if cell["is_root"]:
-                cls = "fret-cell root"
+                marker = "root"
             elif cell["in_scale"]:
-                cls = "fret-cell scale"
+                marker = "scale"
             else:
-                cls = "fret-cell off"
-            row_html.append(f"<div class='{cls}'>{cell['note']}</div>")
+                marker = "off"
+            if marker == "off":
+                row_html.append("<div class='fret-cell off'></div>")
+            else:
+                row_html.append(
+                    f"<div class='fret-cell {marker}'><span class='note-marker {marker}'>{cell['note']}</span></div>"
+                )
         html_parts.append(f"<div class='fret-row'>{''.join(row_html)}</div>")
+    html_parts.append("</div></div>")
     st.markdown("".join(html_parts), unsafe_allow_html=True)
 
 
@@ -451,11 +461,16 @@ def render_chord_diagram(symbol: str, diagram: dict | None, roman: str) -> None:
                     finger_text = fingers[string_number]
                     label = "" if finger_text in {"", 0} else str(finger_text)
                     cell_class += " active"
-                grid_cells.append(f"<div class='{cell_class}'>{label}</div>")
+                if "active" in cell_class:
+                    grid_cells.append(
+                        f"<div class='{cell_class}'><span class='diagram-dot'>{label}</span></div>"
+                    )
+                else:
+                    grid_cells.append(f"<div class='{cell_class}'></div>")
 
         st.markdown(
             f"""
-            <div class="diagram-wrap">
+            <div class="diagram-wrap wood">
                 <div class="diagram-top">{''.join(top_markers)}</div>
                 <div class="diagram-grid">{''.join(grid_cells)}</div>
                 <div class="diagram-footer">Fret {start_fret} to {start_fret + 4}</div>
@@ -599,12 +614,37 @@ st.markdown(
         border: 1px solid #d9e3ef;
         line-height: 1.55;
     }
+    .fretboard-shell {
+        margin-top: 0.8rem;
+    }
     .fretboard-header, .fret-row {
         display: grid;
         grid-template-columns: 88px repeat(13, minmax(36px, 1fr));
         gap: 6px;
-        margin-bottom: 6px;
         align-items: center;
+    }
+    .fretboard-header {
+        margin-bottom: 0.45rem;
+    }
+    .fretboard-board {
+        padding: 1rem 0.75rem 0.75rem 0.75rem;
+        border-radius: 22px;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.08)),
+            repeating-linear-gradient(
+                90deg,
+                #8a5a2e 0px,
+                #8a5a2e 24px,
+                #7a4d27 24px,
+                #7a4d27 48px,
+                #916033 48px,
+                #916033 72px
+            );
+        border: 1px solid #70451f;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.22),
+            inset 0 -8px 18px rgba(43, 23, 8, 0.25),
+            0 14px 30px rgba(15, 23, 42, 0.16);
     }
     .string-label, .fret-label {
         font-size: 0.82rem;
@@ -612,30 +652,79 @@ st.markdown(
         text-align: center;
     }
     .fret-cell {
-        min-height: 38px;
-        border-radius: 12px;
+        min-height: 42px;
+        border-right: 4px solid rgba(221, 226, 232, 0.82);
+        border-left: 1px solid rgba(111, 78, 44, 0.28);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.82rem;
-        border: 1px solid #d7e0ea;
-        background: #ffffff;
-        color: #9aa5b1;
+        position: relative;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.06));
     }
-    .fret-cell.scale {
-        background: #e6f4f1;
-        color: #0f766e;
-        border-color: #99f6e4;
+    .fret-cell::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 3px;
+        transform: translateY(-50%);
+        background: linear-gradient(180deg, #f7f7f6 0%, #cfd3d7 50%, #8d949d 100%);
+        box-shadow: 0 1px 0 rgba(255,255,255,0.35);
+    }
+    .fret-cell.off::before {
+        opacity: 0.92;
+    }
+    .note-marker {
+        position: relative;
+        z-index: 1;
+        width: 30px;
+        height: 30px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
         font-weight: 700;
+        box-shadow:
+            inset 0 1px 1px rgba(255,255,255,0.3),
+            0 5px 10px rgba(0,0,0,0.2);
     }
+    .note-marker.scale {
+        background: linear-gradient(180deg, #c4fff5 0%, #46c7b7 100%);
+        color: #083344;
+        border: 1px solid rgba(255,255,255,0.5);
+    }
+    .note-marker.root {
+        background: linear-gradient(180deg, #ffd0d8 0%, #ef476f 100%);
+        color: #fff7f8;
+        border: 1px solid rgba(255,255,255,0.5);
+    }
+    .fret-cell.scale,
     .fret-cell.root {
-        background: #fff1f2;
-        color: #be123c;
-        border-color: #fecdd3;
         font-weight: 700;
     }
     .diagram-wrap {
-        padding: 0.2rem 0 0.1rem 0;
+        padding: 0.75rem 0.8rem 0.55rem 0.8rem;
+        border-radius: 18px;
+    }
+    .diagram-wrap.wood {
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.08)),
+            repeating-linear-gradient(
+                90deg,
+                #9a6737 0px,
+                #9a6737 18px,
+                #88572d 18px,
+                #88572d 36px,
+                #a16e3d 36px,
+                #a16e3d 54px
+            );
+        border: 1px solid #73471f;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.2),
+            inset 0 -8px 14px rgba(55, 31, 12, 0.22);
     }
     .diagram-top {
         display: grid;
@@ -664,25 +753,47 @@ st.markdown(
         gap: 6px;
     }
     .diagram-cell {
-        border: 1px solid #d7e0ea;
-        border-radius: 10px;
-        background: #ffffff;
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.78rem;
-        color: #102a43;
+        border-right: 4px solid rgba(225, 229, 233, 0.86);
+    }
+    .diagram-cell::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 3px;
+        transform: translateY(-50%);
+        background: linear-gradient(180deg, #f9fafb 0%, #d5dae0 45%, #8d949d 100%);
+        box-shadow: 0 1px 0 rgba(255,255,255,0.32);
     }
     .diagram-cell.active {
-        background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
-        border-color: #f97316;
-        color: #ffffff;
         font-weight: 700;
+    }
+    .diagram-dot {
+        position: relative;
+        z-index: 1;
+        width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(180deg, #ffd089 0%, #ea7a21 100%);
+        color: #fffaf5;
+        border: 1px solid rgba(255,255,255,0.45);
+        box-shadow:
+            inset 0 1px 1px rgba(255,255,255,0.25),
+            0 4px 8px rgba(0,0,0,0.22);
     }
     .diagram-footer {
         margin-top: 0.45rem;
         font-size: 0.8rem;
-        color: #52606d;
+        color: #f8ebe0;
+        text-align: center;
     }
     </style>
     """,
