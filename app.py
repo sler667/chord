@@ -481,11 +481,21 @@ def render_chord_diagram(symbol: str, diagram: dict | None, roman: str) -> None:
         )
 
 
+def section_title(kicker: str, title: str) -> None:
+    st.markdown(
+        f"""
+        <div class="section-kicker">{kicker}</div>
+        <div class="section-title">{title}</div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def render_arranger_page() -> None:
     left, right = st.columns([1.08, 1.42], gap="large")
 
     with left:
-        st.subheader("編曲方向")
+        section_title("Arrangement", "編曲方向")
         key_root = st.selectbox("Key", NOTE_NAMES, index=0)
         mode = st.radio("Mode", ["major", "minor"], index=0, horizontal=True, format_func=scale_mode_label)
         style = st.selectbox("Style", list(STYLE_PRESETS.keys()))
@@ -508,7 +518,7 @@ def render_arranger_page() -> None:
         )
 
     with right:
-        st.subheader("下一個和弦建議")
+        section_title("Suggestion", "下一個和弦建議")
         suggestions = suggest_next_chords(key_root, mode, style, mood, seed_roman)
         if suggestions:
             columns = st.columns(len(suggestions))
@@ -522,27 +532,27 @@ def render_arranger_page() -> None:
     progression = generate_progression(key_root, mode, style, mood, bars, seed_roman)
     melody = melody_sketch(progression, style)
 
-    st.subheader("Progression Draft")
+    section_title("Progression", "Progression Draft")
     st.code(progression_text(progression, key_root, mode), language="text")
 
     col_a, col_b = st.columns([1.12, 0.88], gap="large")
     with col_a:
-        st.subheader("鋼琴配置")
+        section_title("Piano", "鋼琴配置")
         render_voicing_cards(progression, style, melody)
 
     with col_b:
-        st.subheader("使用提示")
+        section_title("Guide", "使用提示")
         st.write("左手先穩住根音與五度，右手再依段落大小決定要不要加滿色彩音。")
         st.write("主歌可以保守一些，只留三和弦或 add9；副歌再把上方旋律整體抬高一個八度。")
 
-        st.subheader("這頁會幫你什麼")
+        section_title("Flow", "這頁會幫你什麼")
         st.write("1. 給你下一個和弦的方向。")
         st.write("2. 自動延伸成一段可用的 progression 草稿。")
         st.write("3. 直接把每小節攤成鋼琴配置與簡單旋律線。")
 
 
 def render_guitar_page() -> None:
-    st.subheader("吉他指板與和弦圖")
+    section_title("Guitar", "吉他指板與和弦圖")
     col_left, col_right = st.columns([1, 1], gap="large")
 
     with col_left:
@@ -568,13 +578,13 @@ def render_guitar_page() -> None:
 
     with col_right:
         scale_notes = [note_name(index) for index in sorted(scale_note_set(guitar_key, guitar_mode))]
-        st.subheader(f"{guitar_key} {scale_mode_label(guitar_mode)} 音階")
+        section_title("Scale", f"{guitar_key} {scale_mode_label(guitar_mode)} 音階")
         st.write("Scale notes: " + " - ".join(scale_notes))
         st.write("下方也會列出這個調常見的七個自然和弦，並顯示可直接按的吉他指法圖。")
 
     render_fretboard(guitar_key, guitar_mode)
 
-    st.subheader("Diatonic Chord Shapes")
+    section_title("Chord Shapes", "Diatonic Chord Shapes")
     chords = diatonic_guitar_chords(guitar_key, guitar_mode)
     columns = st.columns(3)
     for index, chord in enumerate(chords):
@@ -603,8 +613,37 @@ st.markdown(
         padding-bottom: 2.5rem;
         max-width: 1280px;
     }
+    h1, h2, h3, h4, h5, h6, p, label, div, span {
+        font-family: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif JP", "MS Mincho", serif;
+    }
+    [data-testid="stMarkdownContainer"] p {
+        line-height: 1.75;
+    }
+    .stSelectbox label,
+    .stRadio label,
+    .stSlider label {
+        letter-spacing: 0.03em;
+        color: #473729;
+        font-weight: 600;
+    }
+    .stSelectbox div[data-baseweb="select"] > div,
+    .stTextInput input,
+    .stNumberInput input {
+        border-radius: 10px;
+        border-color: #d5c7b7;
+        background: rgba(255, 251, 246, 0.88);
+    }
+    .stSlider [data-baseweb="slider"] {
+        padding-top: 0.35rem;
+    }
     .stRadio > div {
         gap: 0.55rem;
+    }
+    .stRadio > div[role="radiogroup"] > label {
+        border-radius: 999px;
+        padding: 0.22rem 0.75rem;
+        background: rgba(255, 250, 244, 0.72);
+        border: 1px solid #d6cabd;
     }
     .stButton > button,
     .stDownloadButton > button {
@@ -629,12 +668,33 @@ st.markdown(
         padding: 0.75rem 0.85rem;
         box-shadow: 0 6px 16px rgba(53, 43, 35, 0.05);
     }
+    div[data-testid="stMetric"] label {
+        letter-spacing: 0.06em;
+        color: #7a624b;
+    }
     div[data-testid="stCodeBlock"] {
         border-radius: 10px;
         border: 1px solid #d8ccbf;
     }
     div[data-testid="stVerticalBlock"] div[data-testid="stContainer"] {
         border-radius: 12px;
+    }
+    .section-kicker {
+        font-size: 0.72rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #8a1d1d;
+        margin-top: 0.1rem;
+        margin-bottom: 0.18rem;
+        font-weight: 700;
+    }
+    .section-title {
+        font-size: 1.35rem;
+        line-height: 1.2;
+        color: #201916;
+        margin-bottom: 0.7rem;
+        padding-bottom: 0.35rem;
+        border-bottom: 1px solid rgba(122, 95, 67, 0.26);
     }
     .hero {
         padding: 1.45rem 1.55rem;
@@ -650,7 +710,7 @@ st.markdown(
         overflow: hidden;
     }
     .hero::after {
-        content: "印";
+        content: "";
         position: absolute;
         right: 18px;
         bottom: 14px;
@@ -658,19 +718,13 @@ st.markdown(
         height: 42px;
         border-radius: 8px;
         background: rgba(138, 29, 29, 0.78);
-        color: rgba(255, 244, 236, 0.95);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
+        box-shadow: inset 0 0 0 2px rgba(255, 244, 236, 0.26);
     }
     .hero h1 {
         margin: 0 0 0.4rem 0;
-        font-size: 2rem;
+        font-size: 2.15rem;
         font-weight: 700;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.08em;
     }
     .hero p {
         margin: 0;
@@ -870,6 +924,9 @@ st.markdown(
         font-size: 0.8rem;
         color: #ead8c4;
         text-align: center;
+    }
+    div[role="radiogroup"] {
+        gap: 0.35rem;
     }
     </style>
     """,
