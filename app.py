@@ -592,9 +592,11 @@ st.markdown(
     <style>
     .stApp {
         background:
-            radial-gradient(circle at top right, rgba(120, 119, 198, 0.06), transparent 26%),
-            linear-gradient(180deg, #f4f6f8 0%, #eef2f5 100%);
-        color: #17212b;
+            radial-gradient(circle at 12% 18%, rgba(33, 33, 33, 0.07), transparent 18%),
+            radial-gradient(circle at 86% 22%, rgba(120, 38, 38, 0.06), transparent 16%),
+            radial-gradient(circle at 78% 82%, rgba(60, 60, 60, 0.05), transparent 20%),
+            linear-gradient(180deg, #f5f1e8 0%, #ece6db 100%);
+        color: #1f1a17;
     }
     .block-container {
         padding-top: 2rem;
@@ -606,64 +608,85 @@ st.markdown(
     }
     .stButton > button,
     .stDownloadButton > button {
-        border-radius: 12px;
-        border: 1px solid #243b53;
-        background: linear-gradient(180deg, #243b53 0%, #192534 100%);
-        color: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid #2f2925;
+        background: linear-gradient(180deg, #2f2a27 0%, #171412 100%);
+        color: #f6f0e9;
         font-weight: 600;
-        letter-spacing: 0.01em;
-        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+        letter-spacing: 0.03em;
+        box-shadow: 0 8px 18px rgba(34, 24, 18, 0.16);
     }
     .stButton > button:hover,
     .stDownloadButton > button:hover {
-        border-color: #102a43;
-        background: linear-gradient(180deg, #2c4a67 0%, #1d3147 100%);
+        border-color: #5f1d1d;
+        background: linear-gradient(180deg, #3a322e 0%, #1f1a17 100%);
     }
     div[data-testid="stMetric"] {
-        background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
-        border: 1px solid #d9e2ec;
-        border-radius: 14px;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.78) 0%, rgba(248,244,238,0.98) 100%);
+        border: 1px solid #d9cec0;
+        border-radius: 10px;
         padding: 0.75rem 0.85rem;
-        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+        box-shadow: 0 6px 16px rgba(53, 43, 35, 0.05);
     }
     div[data-testid="stCodeBlock"] {
-        border-radius: 14px;
-        border: 1px solid #d9e2ec;
+        border-radius: 10px;
+        border: 1px solid #d8ccbf;
     }
     div[data-testid="stVerticalBlock"] div[data-testid="stContainer"] {
-        border-radius: 14px;
+        border-radius: 12px;
     }
     .hero {
-        padding: 1.35rem 1.5rem;
-        border-radius: 18px;
+        padding: 1.45rem 1.55rem;
+        border-radius: 12px;
         background:
-            linear-gradient(135deg, rgba(179, 123, 58, 0.14), transparent 18%),
-            linear-gradient(135deg, #10161f 0%, #16212d 48%, #1e2d3a 100%);
-        color: #f8fafc;
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.18);
+            radial-gradient(circle at top left, rgba(255,255,255,0.06), transparent 16%),
+            linear-gradient(135deg, #211d1a 0%, #151210 52%, #2a2220 100%);
+        color: #f4efe8;
+        border: 1px solid rgba(112, 92, 74, 0.4);
+        box-shadow: 0 16px 34px rgba(28, 21, 18, 0.18);
         margin-bottom: 1.1rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero::after {
+        content: "印";
+        position: absolute;
+        right: 18px;
+        bottom: 14px;
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+        background: rgba(138, 29, 29, 0.78);
+        color: rgba(255, 244, 236, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
     }
     .hero h1 {
         margin: 0 0 0.4rem 0;
         font-size: 2rem;
         font-weight: 700;
-        letter-spacing: 0.01em;
+        letter-spacing: 0.05em;
     }
     .hero p {
         margin: 0;
-        color: #c8d4df;
+        color: #ddd1c4;
         max-width: 760px;
-        line-height: 1.55;
+        line-height: 1.7;
     }
     .info-card {
         padding: 0.95rem 1rem;
-        border-radius: 14px;
-        background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
-        border: 1px solid #d9e2ec;
-        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+        border-radius: 10px;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(249,245,239,0.98) 100%);
+        border: 1px solid #d8ccbf;
+        box-shadow: 0 8px 18px rgba(50, 39, 31, 0.05);
         line-height: 1.6;
-        color: #243b53;
+        color: #2f2925;
     }
     .fretboard-shell {
         margin-top: 0.95rem;
@@ -681,25 +704,25 @@ st.markdown(
         padding: 1.1rem 0.85rem 0.85rem 0.85rem;
         border-radius: 18px;
         background:
-            linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.14)),
+            linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0.18)),
             repeating-linear-gradient(
                 90deg,
-                #7a4d27 0px,
-                #7a4d27 24px,
-                #6e431f 24px,
-                #6e431f 48px,
-                #85532a 48px,
-                #85532a 72px
+                #5d4027 0px,
+                #5d4027 24px,
+                #503720 24px,
+                #503720 48px,
+                #69482a 48px,
+                #69482a 72px
             );
-        border: 1px solid #5b3819;
+        border: 1px solid #45311f;
         box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.16),
-            inset 0 -10px 20px rgba(33, 18, 8, 0.28),
-            0 14px 30px rgba(15, 23, 42, 0.14);
+            inset 0 1px 0 rgba(255,255,255,0.12),
+            inset 0 -10px 20px rgba(23, 15, 9, 0.32),
+            0 14px 30px rgba(34, 24, 18, 0.12);
     }
     .string-label, .fret-label {
         font-size: 0.82rem;
-        color: #52606d;
+        color: #5c4b3d;
         text-align: center;
         font-weight: 600;
     }
@@ -744,12 +767,12 @@ st.markdown(
             0 4px 10px rgba(0,0,0,0.22);
     }
     .note-marker.scale {
-        background: linear-gradient(180deg, #d7e8f7 0%, #6b8fb1 100%);
-        color: #f8fafc;
+        background: linear-gradient(180deg, #d8d4cb 0%, #8f8a82 100%);
+        color: #faf6ef;
         border: 1px solid rgba(255,255,255,0.28);
     }
     .note-marker.root {
-        background: linear-gradient(180deg, #f2d3a8 0%, #b7792c 100%);
+        background: linear-gradient(180deg, #d79a9a 0%, #8a1d1d 100%);
         color: #fffaf5;
         border: 1px solid rgba(255,255,255,0.26);
     }
@@ -763,20 +786,20 @@ st.markdown(
     }
     .diagram-wrap.wood {
         background:
-            linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.14)),
+            linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.18)),
             repeating-linear-gradient(
                 90deg,
-                #8f5c31 0px,
-                #8f5c31 18px,
-                #7b4c26 18px,
-                #7b4c26 36px,
-                #98663a 36px,
-                #98663a 54px
+                #65462d 0px,
+                #65462d 18px,
+                #593d26 18px,
+                #593d26 36px,
+                #715035 36px,
+                #715035 54px
             );
-        border: 1px solid #643d1b;
+        border: 1px solid #4b3422;
         box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.16),
-            inset 0 -8px 14px rgba(55, 31, 12, 0.24);
+            inset 0 1px 0 rgba(255,255,255,0.12),
+            inset 0 -8px 14px rgba(31, 21, 12, 0.28);
     }
     .diagram-top {
         display: grid;
@@ -787,16 +810,16 @@ st.markdown(
     .top-marker {
         text-align: center;
         font-size: 0.82rem;
-        color: #e8dccf;
+        color: #eadfce;
         min-height: 20px;
         font-weight: 600;
     }
     .top-marker.muted {
-        color: #fca5a5;
+        color: #f3b2b2;
         font-weight: 700;
     }
     .top-marker.open {
-        color: #bfdbfe;
+        color: #efe7da;
         font-weight: 700;
     }
     .diagram-grid {
@@ -835,7 +858,7 @@ st.markdown(
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(180deg, #e9c89b 0%, #a96c28 100%);
+        background: linear-gradient(180deg, #d4a5a5 0%, #8c2020 100%);
         color: #fffaf5;
         border: 1px solid rgba(255,255,255,0.24);
         box-shadow:
@@ -857,7 +880,7 @@ st.markdown(
     """
     <div class="hero">
         <h1>Chord Canvas</h1>
-        <p>以編曲與樂器實作為核心的和聲工作台。Arranger 負責 progression 與 piano voicing，Guitar 負責指板定位與 chord shape 參考。</p>
+        <p>以和聲設計與樂器實作為核心的日系水墨工作台。Arranger 負責 progression 與 piano voicing，Guitar 負責指板定位與 chord shape 參考。</p>
     </div>
     """,
     unsafe_allow_html=True,
