@@ -291,7 +291,8 @@ def voicing_intervals(chord: dict, style: str) -> list[int]:
 def piano_voicing(chord: dict, style: str) -> dict:
     root_index = NOTE_TO_INDEX[chord["root"]]
     intervals = voicing_intervals(chord, style)
-    left_hand = [f"{note_name(root_index)}2", f"{note_name(root_index + 7)}3"]
+    fifth = 6 if chord["quality"] == "dim" else 7
+    left_hand = [f"{note_name(root_index)}2", f"{note_name(root_index + fifth)}3"]
     if style == "Cinematic":
         left_hand.append(f"{note_name(root_index)}3")
 
