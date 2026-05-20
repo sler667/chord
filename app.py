@@ -590,7 +590,8 @@ def render_guitar_page() -> None:
             <div class="info-card">
                 Root ?蝝璅內??br>
                 ???矽?抒??嗡??喲??單??刻?蝬璅內??br>
-                ?桀?憿舐內 0 ??12 fret嚗靘蹂?敹恍雿蔭??            </div>
+                ?桀?憿舐內 0 ??12 fret嚗靘蹂?敹恍雿蔭??
+            </div>
             """,
             unsafe_allow_html=True,
         )
