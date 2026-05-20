@@ -443,19 +443,23 @@ def render_chord_diagram(symbol: str, diagram: dict | None, roman: str) -> None:
         frets = diagram["frets"]
         fingers = diagram["fingers"]
         start_fret = diagram_start_fret(frets)
-        top_markers = []
-        for fret in frets:
-            if fret == "x":
-                top_markers.append("<div class='top-marker muted'>x</div>")
-            elif fret == 0:
-                top_markers.append("<div class='top-marker open'>o</div>")
-            else:
-                top_markers.append("<div class='top-marker'>&nbsp;</div>")
+        fret_labels = "".join(
+            f"<div class='diagram-fret-label'>{start_fret + fret_offset}</div>" for fret_offset in range(5)
+        )
 
-        grid_cells = []
-        for fret_offset in range(5):
-            absolute_fret = start_fret + fret_offset
-            for string_number in range(6):
+        diagram_rows = []
+        for string_number in reversed(range(6)):
+            status = frets[string_number]
+            if status == "x":
+                status_marker = "<div class='string-status muted'>x</div>"
+            elif status == 0:
+                status_marker = "<div class='string-status open'>o</div>"
+            else:
+                status_marker = "<div class='string-status'>●</div>"
+
+            row_cells = []
+            for fret_offset in range(5):
+                absolute_fret = start_fret + fret_offset
                 cell_class = "diagram-cell"
                 label = ""
                 if frets[string_number] == absolute_fret:
@@ -463,17 +467,33 @@ def render_chord_diagram(symbol: str, diagram: dict | None, roman: str) -> None:
                     label = "" if finger_text in {"", 0} else str(finger_text)
                     cell_class += " active"
                 if "active" in cell_class:
-                    grid_cells.append(
+                    row_cells.append(
                         f"<div class='{cell_class}'><span class='diagram-dot'>{label}</span></div>"
                     )
                 else:
-                    grid_cells.append(f"<div class='{cell_class}'></div>")
+                    row_cells.append(f"<div class='{cell_class}'></div>")
+
+            diagram_rows.append(
+                f"""
+                <div class="diagram-row">
+                    <div class="diagram-string-name">{STRING_NAMES[string_number]}</div>
+                    <div class="diagram-string-status-wrap">{status_marker}</div>
+                    <div class="diagram-row-grid">{''.join(row_cells)}</div>
+                </div>
+                """
+            )
 
         st.markdown(
             f"""
-            <div class="diagram-wrap wood">
-                <div class="diagram-top">{''.join(top_markers)}</div>
-                <div class="diagram-grid">{''.join(grid_cells)}</div>
+            <div class="diagram-wrap wood pro">
+                <div class="diagram-header-row">
+                    <div class="diagram-string-name spacer"></div>
+                    <div class="diagram-string-status-wrap spacer"></div>
+                    <div class="diagram-fret-labels">{fret_labels}</div>
+                </div>
+                <div class="diagram-body">
+                    {''.join(diagram_rows)}
+                </div>
                 <div class="diagram-footer">Fret {start_fret} to {start_fret + 4}</div>
             </div>
             """,
@@ -821,12 +841,12 @@ st.markdown(
             0 4px 10px rgba(0,0,0,0.22);
     }
     .note-marker.scale {
-        background: linear-gradient(180deg, #d8d4cb 0%, #8f8a82 100%);
+        background: linear-gradient(180deg, #c9c3b9 0%, #6f6a64 100%);
         color: #faf6ef;
         border: 1px solid rgba(255,255,255,0.28);
     }
     .note-marker.root {
-        background: linear-gradient(180deg, #d79a9a 0%, #8a1d1d 100%);
+        background: linear-gradient(180deg, #b97f7f 0%, #6f1515 100%);
         color: #fffaf5;
         border: 1px solid rgba(255,255,255,0.26);
     }
@@ -835,59 +855,94 @@ st.markdown(
         font-weight: 700;
     }
     .diagram-wrap {
-        padding: 0.8rem 0.85rem 0.6rem 0.85rem;
+        padding: 0.95rem 1rem 0.7rem 1rem;
         border-radius: 14px;
     }
     .diagram-wrap.wood {
         background:
-            linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.18)),
+            linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.22)),
             repeating-linear-gradient(
                 90deg,
-                #65462d 0px,
-                #65462d 18px,
-                #593d26 18px,
-                #593d26 36px,
-                #715035 36px,
-                #715035 54px
+                #4e3726 0px,
+                #4e3726 18px,
+                #452f20 18px,
+                #452f20 36px,
+                #5a402c 36px,
+                #5a402c 54px
             );
-        border: 1px solid #4b3422;
+        border: 1px solid #3f2d20;
         box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.12),
-            inset 0 -8px 14px rgba(31, 21, 12, 0.28);
+            inset 0 1px 0 rgba(255,255,255,0.1),
+            inset 0 -10px 18px rgba(25, 17, 10, 0.34),
+            0 10px 22px rgba(28, 21, 18, 0.12);
     }
-    .diagram-top {
+    .diagram-wrap.pro {
+        position: relative;
+    }
+    .diagram-header-row,
+    .diagram-row {
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        gap: 6px;
-        margin-bottom: 4px;
+        grid-template-columns: 54px 28px 1fr;
+        gap: 10px;
+        align-items: center;
     }
-    .top-marker {
-        text-align: center;
-        font-size: 0.82rem;
+    .diagram-header-row {
+        margin-bottom: 0.35rem;
+    }
+    .diagram-body {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .diagram-string-name {
+        font-size: 0.74rem;
         color: #eadfce;
-        min-height: 20px;
-        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-align: right;
+        opacity: 0.92;
     }
-    .top-marker.muted {
-        color: #f3b2b2;
+    .diagram-string-name.spacer,
+    .diagram-string-status-wrap.spacer {
+        opacity: 0;
+    }
+    .diagram-string-status-wrap {
+        display: flex;
+        justify-content: center;
+    }
+    .string-status {
+        color: #eadfce;
+        font-size: 0.76rem;
+        line-height: 1;
+    }
+    .string-status.muted {
+        color: #d39b9b;
         font-weight: 700;
     }
-    .top-marker.open {
-        color: #efe7da;
+    .string-status.open {
+        color: #f1e7da;
         font-weight: 700;
     }
-    .diagram-grid {
+    .diagram-fret-labels,
+    .diagram-row-grid {
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
-        grid-template-rows: repeat(5, 34px);
+        grid-template-columns: repeat(5, minmax(28px, 1fr));
         gap: 6px;
+    }
+    .diagram-fret-label {
+        font-size: 0.72rem;
+        color: #eadfce;
+        text-align: center;
+        letter-spacing: 0.04em;
     }
     .diagram-cell {
         position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-right: 4px solid rgba(220, 225, 231, 0.86);
+        min-height: 28px;
+        border-right: 4px solid rgba(214, 219, 224, 0.78);
+        border-left: 1px solid rgba(51, 35, 23, 0.35);
+        background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08));
     }
     .diagram-cell::before {
         content: "";
@@ -912,7 +967,7 @@ st.markdown(
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(180deg, #d4a5a5 0%, #8c2020 100%);
+        background: linear-gradient(180deg, #a96f6f 0%, #611111 100%);
         color: #fffaf5;
         border: 1px solid rgba(255,255,255,0.24);
         box-shadow:
@@ -920,10 +975,11 @@ st.markdown(
             0 4px 8px rgba(0,0,0,0.22);
     }
     .diagram-footer {
-        margin-top: 0.45rem;
-        font-size: 0.8rem;
-        color: #ead8c4;
-        text-align: center;
+        margin-top: 0.65rem;
+        font-size: 0.74rem;
+        color: #d9c4ad;
+        text-align: right;
+        letter-spacing: 0.05em;
     }
     div[role="radiogroup"] {
         gap: 0.35rem;
