@@ -11,15 +11,15 @@ STRING_NAMES = ["6(E)", "5(A)", "4(D)", "3(G)", "2(B)", "1(E)"]
 
 STYLE_PRESETS = {
     "J-Pop / Anime": {
-        "description": "明亮、推進感強，常見六級小和弦、流動低音與 add9 色彩。",
+        "description": "?漁??脫?撘瘀?撣貉??剔?撠?撘艾????唾? add9 ?脣蔗??,
         "tensions": ["add9", "sus2", "maj7", "6/9"],
     },
     "Rock": {
-        "description": "骨架明確、重拍穩，適合直接有力的和聲推進。",
+        "description": "撉冽?Ⅱ???帘嚗??交?????券脯?,
         "tensions": ["sus4", "add9", "7"],
     },
     "Cinematic": {
-        "description": "空間感大，適合寬廣和弦、踏點低音與漸進旋律。",
+        "description": "蝛粹??之嚗?祝撱??撘艾?暺??唾?瞍賊脫?敺?,
         "tensions": ["maj7", "add9", "11", "6/9"],
     },
 }
@@ -31,13 +31,13 @@ TRANSITIONS = {
     "IV": [("I", 2), ("V", 4), ("ii", 2), ("iv", 2), ("bVII", 1)],
     "V": [("I", 6), ("vi", 2), ("bVI", 1)],
     "vi": [("IV", 4), ("ii", 2), ("V", 2), ("III", 1)],
-    "vii°": [("I", 5), ("iii", 1)],
+    "vii簞": [("I", 5), ("iii", 1)],
     "i": [("VI", 3), ("iv", 3), ("V", 2), ("III", 2)],
-    "ii°": [("V", 5), ("iv", 2)],
+    "ii簞": [("V", 5), ("iv", 2)],
     "III": [("VI", 3), ("iv", 2), ("VII", 2)],
     "iv": [("V", 5), ("i", 2), ("bVI", 1)],
     "v": [("i", 4), ("VI", 2)],
-    "VI": [("III", 2), ("iv", 3), ("VII", 1), ("ii°", 1)],
+    "VI": [("III", 2), ("iv", 3), ("VII", 1), ("ii簞", 1)],
     "VII": [("III", 2), ("i", 3), ("V", 2)],
     "bVII": [("I", 4), ("IV", 2), ("V", 1)],
     "bVI": [("V", 4), ("iv", 2), ("I", 1)],
@@ -66,7 +66,7 @@ STYLE_BONUS = {
 
 MOOD_BONUS = {
     "Lift": {"I": 2, "IV": 2, "V": 2, "VI": 1},
-    "Tension": {"ii": 2, "V": 3, "vii°": 2, "iv": 2, "bVI": 1},
+    "Tension": {"ii": 2, "V": 3, "vii簞": 2, "iv": 2, "bVI": 1},
     "Melancholy": {"vi": 3, "i": 2, "iv": 2, "III": 1},
     "Wonder": {"I": 1, "III": 1, "VI": 1},
 }
@@ -79,14 +79,14 @@ ROMAN_INTERVALS = {
         "IV": 5,
         "V": 7,
         "vi": 9,
-        "vii°": 11,
+        "vii簞": 11,
         "bVII": 10,
         "bVI": 8,
         "iv": 5,
     },
     "minor": {
         "i": 0,
-        "ii°": 2,
+        "ii簞": 2,
         "III": 3,
         "iv": 5,
         "v": 7,
@@ -104,9 +104,9 @@ BASE_QUALITIES = {
     "IV": "maj",
     "V": "maj",
     "vi": "min",
-    "vii°": "dim",
+    "vii簞": "dim",
     "i": "min",
-    "ii°": "dim",
+    "ii簞": "dim",
     "III": "maj",
     "iv": "min",
     "v": "min",
@@ -130,8 +130,8 @@ SCALE_INTERVALS = {
 }
 
 DIATONIC_TRIADS = {
-    "major": ["I", "ii", "iii", "IV", "V", "vi", "vii°"],
-    "minor": ["i", "ii°", "III", "iv", "v", "VI", "VII"],
+    "major": ["I", "ii", "iii", "IV", "V", "vi", "vii簞"],
+    "minor": ["i", "ii簞", "III", "iv", "v", "VI", "VII"],
 }
 
 GUITAR_CHORD_LIBRARY = {
@@ -346,7 +346,7 @@ def render_voicing_cards(progression: list[dict], style: str, melody: list[list[
     for index, chord in enumerate(progression, start=1):
         voicing = piano_voicing(chord, style)
         with st.container(border=True):
-            st.markdown(f"**Bar {index} · {chord['roman']} / {chord['label']}**")
+            st.markdown(f"**Bar {index} 繚 {chord['roman']} / {chord['label']}**")
             st.write(f"Left hand: `{'  '.join(voicing['left'])}`")
             st.write(f"Right hand: `{'  '.join(voicing['right'])}`")
             st.write(f"Melody sketch: `{'  '.join(melody[index - 1])}`")
@@ -435,9 +435,9 @@ def diagram_start_fret(frets: list) -> int:
 
 def render_chord_diagram(symbol: str, diagram: dict | None, roman: str) -> None:
     with st.container(border=True):
-        st.markdown(f"**{roman} · {symbol}**")
+        st.markdown(f"**{roman} 繚 {symbol}**")
         if not diagram:
-            st.write("這個和弦目前還沒有內建指法圖。")
+            st.write("??撘衣??瘝??批遣????)
             return
 
         frets = diagram["frets"]
@@ -455,7 +455,7 @@ def render_chord_diagram(symbol: str, diagram: dict | None, roman: str) -> None:
             elif status == 0:
                 status_marker = "<div class='string-status open'>o</div>"
             else:
-                status_marker = "<div class='string-status'>●</div>"
+                status_marker = "<div class='string-status'>*</div>"
 
             row_cells = []
             for fret_offset in range(5):
@@ -515,7 +515,7 @@ def render_arranger_page() -> None:
     left, right = st.columns([1.08, 1.42], gap="large")
 
     with left:
-        section_title("Arrangement", "編曲方向")
+        section_title("Arrangement", "蝺冽?孵?")
         key_root = st.selectbox("Key", NOTE_NAMES, index=0)
         mode = st.radio("Mode", ["major", "minor"], index=0, horizontal=True, format_func=scale_mode_label)
         style = st.selectbox("Style", list(STYLE_PRESETS.keys()))
@@ -538,7 +538,7 @@ def render_arranger_page() -> None:
         )
 
     with right:
-        section_title("Suggestion", "下一個和弦建議")
+        section_title("Suggestion", "銝???撘血遣霅?)
         suggestions = suggest_next_chords(key_root, mode, style, mood, seed_roman)
         if suggestions:
             columns = st.columns(len(suggestions))
@@ -546,7 +546,7 @@ def render_arranger_page() -> None:
                 with column:
                     st.metric(chord["roman"], chord["label"])
         else:
-            st.info("這個起點目前沒有對應建議，換個 mode 或起始和弦就能繼續。")
+            st.info("?絲暺?????遣霅堆???mode ?絲憪?撘血停?賜匱蝥?)
 
     random.seed(st.session_state.seed)
     progression = generate_progression(key_root, mode, style, mood, bars, seed_roman)
@@ -557,28 +557,28 @@ def render_arranger_page() -> None:
 
     col_a, col_b = st.columns([1.12, 0.88], gap="large")
     with col_a:
-        section_title("Piano", "鋼琴配置")
+        section_title("Piano", "?潛?蔭")
         render_voicing_cards(progression, style, melody)
 
     with col_b:
-        section_title("Guide", "使用提示")
-        st.write("左手先穩住根音與五度，右手再依段落大小決定要不要加滿色彩音。")
-        st.write("主歌可以保守一些，只留三和弦或 add9；副歌再把上方旋律整體抬高一個八度。")
+        section_title("Guide", "雿輻?內")
+        st.write("撌行??帘雿?唾?鈭漲嚗??靘挾?賢之撠捱摰?銝??遛?脣蔗?喋?)
+        st.write("銝餅??臭誑靽?銝鈭??芰?銝?撘行? add9嚗甇????寞?敺擃擃??摨艾?)
 
-        section_title("Flow", "這頁會幫你什麼")
-        st.write("1. 給你下一個和弦的方向。")
-        st.write("2. 自動延伸成一段可用的 progression 草稿。")
-        st.write("3. 直接把每小節攤成鋼琴配置與簡單旋律線。")
+        section_title("Flow", "???鼠雿?暻?)
+        st.write("1. 蝯虫?銝???撘衣??孵???)
+        st.write("2. ?芸?撱嗡撓??畾萄?函? progression ?阮??)
+        st.write("3. ?湔??撠??斗??潛?蔭?陛?格?敺???)
 
 
 def render_guitar_page() -> None:
-    section_title("Guitar", "吉他指板與和弦圖")
+    section_title("Guitar", "?????撘血?")
     col_left, col_right = st.columns([1, 1], gap="large")
 
     with col_left:
-        guitar_key = st.selectbox("調性根音", NOTE_NAMES, index=0, key="guitar_key")
+        guitar_key = st.selectbox("隤踵扳??, NOTE_NAMES, index=0, key="guitar_key")
         guitar_mode = st.radio(
-            "音階模式",
+            "?喲?璅∪?",
             ["major", "minor"],
             index=0,
             horizontal=True,
@@ -588,19 +588,18 @@ def render_guitar_page() -> None:
         st.markdown(
             """
             <div class="info-card">
-                Root 會用紅色標示。<br>
-                同一個調內的其他音階音會用藍綠色標示。<br>
-                目前顯示 0 到 12 fret，方便你快速找位置。
-            </div>
+                Root ?蝝璅內??br>
+                ???矽?抒??嗡??喲??單??刻?蝬璅內??br>
+                ?桀?憿舐內 0 ??12 fret嚗靘蹂?敹恍雿蔭??            </div>
             """,
             unsafe_allow_html=True,
         )
 
     with col_right:
         scale_notes = [note_name(index) for index in sorted(scale_note_set(guitar_key, guitar_mode))]
-        section_title("Scale", f"{guitar_key} {scale_mode_label(guitar_mode)} 音階")
+        section_title("Scale", f"{guitar_key} {scale_mode_label(guitar_mode)} ?喲?")
         st.write("Scale notes: " + " - ".join(scale_notes))
-        st.write("下方也會列出這個調常見的七個自然和弦，並顯示可直接按的吉他指法圖。")
+        st.write("銝銋???矽撣貉?????嗅?撘佗?銝阡＊蝷箏?湔????????)
 
     render_fretboard(guitar_key, guitar_mode)
 
@@ -612,7 +611,7 @@ def render_guitar_page() -> None:
             render_chord_diagram(chord["symbol"], chord["diagram"], chord["roman"])
 
 
-st.set_page_config(page_title="Chord Canvas Demo", page_icon="🎹", layout="wide")
+st.set_page_config(page_title="Chord Canvas Demo", page_icon="?", layout="wide")
 
 if "seed" not in st.session_state:
     st.session_state.seed = 7
@@ -993,7 +992,7 @@ st.markdown(
     """
     <div class="hero">
         <h1>Chord Canvas</h1>
-        <p>以和聲設計與樂器實作為核心的日系水墨工作台。Arranger 負責 progression 與 piano voicing，Guitar 負責指板定位與 chord shape 參考。</p>
+        <p>隞亙??脰身閮?璅撖虫??箸敹??亦頂瘞游◢撌乩??啜rranger 鞎痊 progression ??piano voicing嚗uitar 鞎痊?摰???chord shape ??/p>
     </div>
     """,
     unsafe_allow_html=True,
