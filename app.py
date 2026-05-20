@@ -451,11 +451,14 @@ def render_chord_diagram(symbol: str, diagram: dict | None, roman: str) -> None:
         for string_number in reversed(range(6)):
             status = frets[string_number]
             if status == "x":
-                status_marker = "<div class='string-status muted'>x</div>"
+                status_class = "muted"
+                status_text = "X"
             elif status == 0:
-                status_marker = "<div class='string-status open'>o</div>"
+                status_class = "open"
+                status_text = "O"
             else:
-                status_marker = "<div class='string-status'>*</div>"
+                status_class = "play"
+                status_text = ""
 
             row_cells = []
             for fret_offset in range(5):
@@ -475,17 +478,22 @@ def render_chord_diagram(symbol: str, diagram: dict | None, roman: str) -> None:
 
             diagram_rows.append(
                 f'<div class="diagram-row">'
+                f'<div class="diagram-string-meta">'
                 f'<div class="diagram-string-name">{STRING_NAMES[string_number]}</div>'
-                f'<div class="diagram-string-status-wrap">{status_marker}</div>'
+                f'<div class="string-status {status_class}">{status_text}</div>'
+                f"</div>"
                 f'<div class="diagram-row-grid">{"".join(row_cells)}</div>'
                 f"</div>"
             )
 
         diagram_html = (
-            f'<div class="diagram-wrap wood pro">'
+            f'<div class="diagram-wrap pro-card">'
+            f'<div class="diagram-card-head">'
+            f'<div class="diagram-card-title">{roman} · {symbol}</div>'
+            f'<div class="diagram-card-sub">Chord shape</div>'
+            f"</div>"
             f'<div class="diagram-header-row">'
-            f'<div class="diagram-string-name spacer"></div>'
-            f'<div class="diagram-string-status-wrap spacer"></div>'
+            f'<div class="diagram-string-meta spacer"></div>'
             f'<div class="diagram-fret-labels">{fret_labels}</div>'
             f"</div>"
             f'<div class="diagram-body">{"".join(diagram_rows)}</div>'
@@ -650,7 +658,7 @@ def render_guitar_page() -> None:
         render_fretboard(guitar_key, guitar_mode)
 
         st.markdown("<div class='guitar-bottom-panel'>", unsafe_allow_html=True)
-        info_col, focus_col, shapes_col = st.columns([0.26, 0.34, 0.40], gap="large")
+        info_col, focus_col, shapes_col = st.columns([0.22, 0.24, 0.54], gap="large")
 
         with info_col:
             st.markdown(
@@ -707,7 +715,7 @@ def render_guitar_page() -> None:
                 unsafe_allow_html=True,
             )
             chords = diatonic_guitar_chords(guitar_key, guitar_mode)
-            shape_cols = st.columns(2, gap="medium")
+            shape_cols = st.columns(2, gap="large")
             for index, chord in enumerate(chords):
                 with shape_cols[index % 2]:
                     render_chord_diagram(chord["symbol"], chord["diagram"], chord["roman"])
@@ -958,82 +966,96 @@ st.markdown(
         font-weight: 700;
     }
     .diagram-wrap {
-        padding: 0.95rem 1rem 0.7rem 1rem;
-        border-radius: 14px;
+        padding: 0.9rem 0.95rem 0.75rem 0.95rem;
+        border-radius: 16px;
     }
-    .diagram-wrap.wood {
-        background:
-            linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.22)),
-            repeating-linear-gradient(
-                90deg,
-                #4e3726 0px,
-                #4e3726 18px,
-                #452f20 18px,
-                #452f20 36px,
-                #5a402c 36px,
-                #5a402c 54px
-            );
-        border: 1px solid #3f2d20;
+    .diagram-wrap.pro-card {
+        background: linear-gradient(180deg, #171c24 0%, #10151d 100%);
+        border: 1px solid rgba(255,255,255,0.06);
         box-shadow:
-            inset 0 1px 0 rgba(255,255,255,0.1),
-            inset 0 -10px 18px rgba(25, 17, 10, 0.34),
-            0 10px 22px rgba(28, 21, 18, 0.12);
+            inset 0 1px 0 rgba(255,255,255,0.05),
+            0 12px 24px rgba(5, 8, 14, 0.18);
     }
-    .diagram-wrap.pro {
-        position: relative;
+    .diagram-card-head {
+        margin-bottom: 0.8rem;
+    }
+    .diagram-card-title {
+        color: #f3f6fb;
+        font-size: 1rem;
+        letter-spacing: 0.03em;
+    }
+    .diagram-card-sub {
+        color: #7f8897;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-top: 0.15rem;
     }
     .diagram-header-row,
     .diagram-row {
         display: grid;
-        grid-template-columns: 54px 28px 1fr;
-        gap: 10px;
+        grid-template-columns: 64px 1fr;
+        gap: 12px;
         align-items: center;
     }
     .diagram-header-row {
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.4rem;
     }
     .diagram-body {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
+    }
+    .diagram-string-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.45rem;
     }
     .diagram-string-name {
         font-size: 0.74rem;
-        color: #eadfce;
-        letter-spacing: 0.05em;
-        text-align: right;
-        opacity: 0.92;
+        color: #c4ccd8;
+        letter-spacing: 0.04em;
+        text-align: left;
     }
-    .diagram-string-name.spacer,
-    .diagram-string-status-wrap.spacer {
+    .diagram-string-meta.spacer {
         opacity: 0;
     }
-    .diagram-string-status-wrap {
-        display: flex;
-        justify-content: center;
-    }
     .string-status {
-        color: #eadfce;
-        font-size: 0.76rem;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.62rem;
         line-height: 1;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.02);
+        color: #93a0b1;
     }
     .string-status.muted {
-        color: #d39b9b;
-        font-weight: 700;
+        color: #f2c2c2;
+        border-color: rgba(211, 114, 114, 0.26);
     }
     .string-status.open {
-        color: #f1e7da;
-        font-weight: 700;
+        color: #d6dde8;
+        border-color: rgba(214, 221, 232, 0.18);
+    }
+    .string-status.play {
+        opacity: 0.35;
     }
     .diagram-fret-labels,
     .diagram-row-grid {
         display: grid;
-        grid-template-columns: repeat(5, minmax(28px, 1fr));
-        gap: 6px;
+        grid-template-columns: repeat(5, minmax(30px, 1fr));
+        gap: 8px;
     }
     .diagram-fret-label {
         font-size: 0.72rem;
-        color: #eadfce;
+        color: #808a9a;
         text-align: center;
         letter-spacing: 0.04em;
     }
@@ -1042,10 +1064,10 @@ st.markdown(
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 28px;
-        border-right: 4px solid rgba(214, 219, 224, 0.78);
-        border-left: 1px solid rgba(51, 35, 23, 0.35);
-        background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08));
+        min-height: 30px;
+        border-right: 2px solid rgba(196, 203, 213, 0.34);
+        border-left: 1px solid rgba(255,255,255,0.02);
+        background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.1));
     }
     .diagram-cell::before {
         content: "";
@@ -1053,13 +1075,10 @@ st.markdown(
         left: 0;
         right: 0;
         top: 50%;
-        height: 3px;
+        height: 2px;
         transform: translateY(-50%);
-        background: linear-gradient(180deg, #edf2f7 0%, #cbd2d9 45%, #7b8794 100%);
+        background: linear-gradient(180deg, #e6ebf1 0%, #9aa5b3 45%, #5f6977 100%);
         box-shadow: 0 1px 0 rgba(255,255,255,0.24);
-    }
-    .diagram-cell.active {
-        font-weight: 700;
     }
     .diagram-dot {
         position: relative;
@@ -1078,11 +1097,11 @@ st.markdown(
             0 4px 8px rgba(0,0,0,0.22);
     }
     .diagram-footer {
-        margin-top: 0.65rem;
-        font-size: 0.74rem;
-        color: #d9c4ad;
+        margin-top: 0.75rem;
+        font-size: 0.72rem;
+        color: #7d8899;
         text-align: right;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.06em;
     }
     div[role="radiogroup"] {
         gap: 0.35rem;
