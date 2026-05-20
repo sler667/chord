@@ -453,9 +453,9 @@ def render_chord_diagram(symbol: str, diagram: dict | None, roman: str) -> None:
                 top_markers.append("<div class='top-marker'>&nbsp;</div>")
 
         grid_cells = []
-        for string_number in range(6):
-            for fret_offset in range(5):
-                absolute_fret = start_fret + fret_offset
+        for fret_offset in range(5):
+            absolute_fret = start_fret + fret_offset
+            for string_number in range(6):
                 cell_class = "diagram-cell"
                 label = ""
                 if frets[string_number] == absolute_fret:
