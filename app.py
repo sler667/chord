@@ -474,31 +474,25 @@ def render_chord_diagram(symbol: str, diagram: dict | None, roman: str) -> None:
                     row_cells.append(f"<div class='{cell_class}'></div>")
 
             diagram_rows.append(
-                f"""
-                <div class="diagram-row">
-                    <div class="diagram-string-name">{STRING_NAMES[string_number]}</div>
-                    <div class="diagram-string-status-wrap">{status_marker}</div>
-                    <div class="diagram-row-grid">{''.join(row_cells)}</div>
-                </div>
-                """
+                f'<div class="diagram-row">'
+                f'<div class="diagram-string-name">{STRING_NAMES[string_number]}</div>'
+                f'<div class="diagram-string-status-wrap">{status_marker}</div>'
+                f'<div class="diagram-row-grid">{"".join(row_cells)}</div>'
+                f"</div>"
             )
 
-        st.markdown(
-            f"""
-            <div class="diagram-wrap wood pro">
-                <div class="diagram-header-row">
-                    <div class="diagram-string-name spacer"></div>
-                    <div class="diagram-string-status-wrap spacer"></div>
-                    <div class="diagram-fret-labels">{fret_labels}</div>
-                </div>
-                <div class="diagram-body">
-                    {''.join(diagram_rows)}
-                </div>
-                <div class="diagram-footer">Fret {start_fret} to {start_fret + 4}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
+        diagram_html = (
+            f'<div class="diagram-wrap wood pro">'
+            f'<div class="diagram-header-row">'
+            f'<div class="diagram-string-name spacer"></div>'
+            f'<div class="diagram-string-status-wrap spacer"></div>'
+            f'<div class="diagram-fret-labels">{fret_labels}</div>'
+            f"</div>"
+            f'<div class="diagram-body">{"".join(diagram_rows)}</div>'
+            f'<div class="diagram-footer">Fret {start_fret} to {start_fret + 4}</div>'
+            f"</div>"
         )
+        st.markdown(diagram_html, unsafe_allow_html=True)
 
 
 def section_title(kicker: str, title: str) -> None:
