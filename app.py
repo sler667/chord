@@ -572,44 +572,153 @@ def render_arranger_page() -> None:
 
 
 def render_guitar_page() -> None:
-    section_title("Guitar", "吉他指板與和弦圖")
-    col_left, col_right = st.columns([1, 1], gap="large")
+    st.markdown(
+        """
+        <div class="guitar-hero">
+            <div class="guitar-hero-kicker">FRETBOARD WORKSPACE</div>
+            <div class="guitar-hero-title">Scale & Chord Navigator</div>
+            <div class="guitar-hero-copy">
+                Dark fretboard workspace for locating scale tones and reading practical chord shapes.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    with col_left:
-        guitar_key = st.selectbox("調性根音", NOTE_NAMES, index=0, key="guitar_key")
-        guitar_mode = st.radio(
-            "音階模式",
-            ["major", "minor"],
-            index=0,
-            horizontal=True,
-            key="guitar_mode",
-            format_func=scale_mode_label,
-        )
+    rail_col, main_col = st.columns([0.12, 0.88], gap="large")
+
+    with rail_col:
         st.markdown(
             """
-            <div class="info-card">
-                Root 會用紅色標示。<br>
-                同一個調內的其他音階音會用藍綠色標示。<br>
-                目前顯示 0 到 12 fret，方便你快速找位置。
+            <div class="guitar-rail">
+                <div class="rail-item active">Fretboard</div>
+                <div class="rail-item">Chords</div>
+                <div class="rail-item">Scales</div>
+                <div class="rail-item">Patterns</div>
+                <div class="rail-item">Training</div>
+                <div class="rail-item">Settings</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    with col_right:
+    with main_col:
+        top_a, top_b, top_c, top_d = st.columns([1.2, 0.8, 1.0, 1.0], gap="medium")
+
+        with top_a:
+            st.markdown(
+                """
+                <div class="control-card static">
+                    <div class="control-label">Tuning</div>
+                    <div class="control-value">E Standard</div>
+                    <div class="control-sub">E &nbsp; A &nbsp; D &nbsp; G &nbsp; B &nbsp; E</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with top_b:
+            st.markdown(
+                """
+                <div class="control-card static">
+                    <div class="control-label">BPM</div>
+                    <div class="control-value">120</div>
+                    <div class="control-sub">Tap</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with top_c:
+            guitar_key = st.selectbox("Key", NOTE_NAMES, index=9, key="guitar_key")
+
+        with top_d:
+            guitar_mode = st.selectbox(
+                "Scale",
+                ["major", "minor"],
+                index=1,
+                key="guitar_mode",
+                format_func=lambda mode: "A Natural Minor" if mode == "minor" else "Major Scale",
+            )
+
         scale_notes = [note_name(index) for index in sorted(scale_note_set(guitar_key, guitar_mode))]
-        section_title("Scale", f"{guitar_key} {scale_mode_label(guitar_mode)} 音階")
-        st.write("Scale notes: " + " - ".join(scale_notes))
-        st.write("下方也會列出這個調常見的七個自然和弦，並顯示可直接按的吉他指法圖。")
 
-    render_fretboard(guitar_key, guitar_mode)
+        st.markdown(
+            """
+            <div class="legend-row">
+                <span class="legend-dot root"></span><span class="legend-text">Root</span>
+                <span class="legend-dot scale"></span><span class="legend-text">Scale Tone</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-    section_title("Chord Shapes", "Diatonic Chord Shapes")
-    chords = diatonic_guitar_chords(guitar_key, guitar_mode)
-    columns = st.columns(3)
-    for index, chord in enumerate(chords):
-        with columns[index % 3]:
-            render_chord_diagram(chord["symbol"], chord["diagram"], chord["roman"])
+        render_fretboard(guitar_key, guitar_mode)
+
+        st.markdown("<div class='guitar-bottom-panel'>", unsafe_allow_html=True)
+        info_col, focus_col, shapes_col = st.columns([0.26, 0.34, 0.40], gap="large")
+
+        with info_col:
+            st.markdown(
+                """
+                <div class="panel-title-block">
+                    <div class="panel-kicker">Modes</div>
+                    <div class="panel-title">Scales</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            scale_items = [
+                "Natural Minor",
+                "Harmonic Minor",
+                "Melodic Minor",
+                "Dorian",
+                "Phrygian",
+                "Lydian",
+                "Mixolydian",
+                "Locrian",
+            ]
+            active_label = "Natural Minor" if guitar_mode == "minor" else "Major Scale"
+            list_html = []
+            for item in scale_items:
+                cls = "scale-list-item active" if item == active_label else "scale-list-item"
+                list_html.append(f"<div class='{cls}'>{item}</div>")
+            st.markdown(f"<div class='scale-list'>{''.join(list_html)}</div>", unsafe_allow_html=True)
+
+        with focus_col:
+            note_chips = "".join(f"<span class='note-chip'>{note}</span>" for note in scale_notes)
+            st.markdown(
+                f"""
+                <div class="panel-title-block">
+                    <div class="panel-kicker">Current Scale</div>
+                    <div class="panel-title">{guitar_key} {'Natural Minor' if guitar_mode == 'minor' else 'Major Scale'}</div>
+                </div>
+                <div class="focus-copy">
+                    Notes: {', '.join(scale_notes)}<br>
+                    Formula: {'R 2 b3 4 5 b6 b7' if guitar_mode == 'minor' else 'R 2 3 4 5 6 7'}
+                </div>
+                <div class="note-chip-row">{note_chips}</div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with shapes_col:
+            st.markdown(
+                """
+                <div class="panel-title-block">
+                    <div class="panel-kicker">Chord Shapes</div>
+                    <div class="panel-title">Diatonic Positions</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            chords = diatonic_guitar_chords(guitar_key, guitar_mode)
+            shape_cols = st.columns(2, gap="medium")
+            for index, chord in enumerate(chords):
+                with shape_cols[index % 2]:
+                    render_chord_diagram(chord["symbol"], chord["diagram"], chord["roman"])
+
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 st.set_page_config(page_title="Chord Canvas Demo", page_icon="🎹", layout="wide")
@@ -983,6 +1092,245 @@ st.markdown(
     }
     div[role="radiogroup"] {
         gap: 0.35rem;
+    }
+    .guitar-hero {
+        padding: 1.2rem 1.25rem;
+        border-radius: 18px;
+        background:
+            radial-gradient(circle at top left, rgba(255,255,255,0.04), transparent 20%),
+            linear-gradient(180deg, #141821 0%, #0f131b 100%);
+        border: 1px solid rgba(255,255,255,0.06);
+        box-shadow: 0 18px 36px rgba(5, 8, 14, 0.35);
+        margin-bottom: 1rem;
+    }
+    .guitar-hero-kicker {
+        color: #ff9f43;
+        font-size: 0.72rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        margin-bottom: 0.3rem;
+        font-weight: 700;
+    }
+    .guitar-hero-title {
+        color: #f3f6fb;
+        font-size: 1.85rem;
+        letter-spacing: 0.03em;
+        margin-bottom: 0.3rem;
+    }
+    .guitar-hero-copy {
+        color: #8c96a7;
+        max-width: 720px;
+        line-height: 1.65;
+    }
+    .guitar-rail {
+        background: linear-gradient(180deg, #11151d 0%, #0c1118 100%);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 18px;
+        padding: 0.65rem;
+        box-shadow: 0 14px 28px rgba(5, 8, 14, 0.24);
+    }
+    .rail-item {
+        color: #7e8798;
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 0.75rem 0.55rem;
+        border-radius: 12px;
+        margin-bottom: 0.35rem;
+        background: rgba(255,255,255,0.01);
+        border: 1px solid transparent;
+    }
+    .rail-item.active {
+        color: #f3f6fb;
+        background: linear-gradient(180deg, rgba(255,159,67,0.16), rgba(255,159,67,0.05));
+        border-color: rgba(255,159,67,0.28);
+    }
+    .control-card.static {
+        min-height: 84px;
+        padding: 0.85rem 1rem;
+        border-radius: 16px;
+        background: linear-gradient(180deg, #151922 0%, #10151d 100%);
+        border: 1px solid rgba(255,255,255,0.05);
+        box-shadow: 0 12px 22px rgba(5, 8, 14, 0.2);
+    }
+    .control-label {
+        color: #6f7888;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        margin-bottom: 0.35rem;
+        font-weight: 700;
+    }
+    .control-value {
+        color: #f3f6fb;
+        font-size: 1.2rem;
+        margin-bottom: 0.18rem;
+    }
+    .control-sub {
+        color: #8b95a4;
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+    }
+    .legend-row {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.45rem;
+        margin: 0.55rem 0 0.2rem 0;
+    }
+    .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        display: inline-block;
+    }
+    .legend-dot.root {
+        background: #ff9f43;
+        box-shadow: 0 0 0 2px rgba(255,159,67,0.2);
+    }
+    .legend-dot.scale {
+        background: #cdd4de;
+        box-shadow: 0 0 0 2px rgba(205,212,222,0.15);
+    }
+    .legend-text {
+        color: #8b95a4;
+        font-size: 0.76rem;
+        margin-right: 0.8rem;
+    }
+    .guitar-bottom-panel {
+        margin-top: 1.2rem;
+        padding: 1.2rem;
+        border-radius: 20px;
+        background: linear-gradient(180deg, #11161f 0%, #0d1219 100%);
+        border: 1px solid rgba(255,255,255,0.05);
+        box-shadow: 0 18px 34px rgba(5, 8, 14, 0.28);
+    }
+    .panel-title-block {
+        margin-bottom: 0.85rem;
+    }
+    .panel-kicker {
+        color: #6f7888;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        margin-bottom: 0.25rem;
+        font-weight: 700;
+    }
+    .panel-title {
+        color: #f3f6fb;
+        font-size: 1.1rem;
+        letter-spacing: 0.03em;
+    }
+    .scale-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+    }
+    .scale-list-item {
+        color: #8b95a4;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.04);
+        padding: 0.65rem 0.75rem;
+        border-radius: 10px;
+        font-size: 0.84rem;
+    }
+    .scale-list-item.active {
+        color: #f3f6fb;
+        border-color: rgba(255,159,67,0.24);
+        background: linear-gradient(180deg, rgba(255,159,67,0.12), rgba(255,159,67,0.04));
+    }
+    .focus-copy {
+        color: #9aa3b2;
+        font-size: 0.84rem;
+        line-height: 1.8;
+        margin-bottom: 0.9rem;
+    }
+    .note-chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .note-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        padding: 0.4rem 0.55rem;
+        border-radius: 999px;
+        background: rgba(255,159,67,0.1);
+        color: #f8c98a;
+        border: 1px solid rgba(255,159,67,0.22);
+        font-size: 0.78rem;
+    }
+    .fretboard-board {
+        background:
+            radial-gradient(circle at 50% 10%, rgba(255,255,255,0.06), transparent 28%),
+            linear-gradient(180deg, #242a33 0%, #171c24 100%);
+        border: 1px solid rgba(255,255,255,0.06);
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.08),
+            inset 0 -10px 18px rgba(0, 0, 0, 0.35),
+            0 20px 34px rgba(5, 8, 14, 0.26);
+    }
+    .string-label, .fret-label {
+        color: #9ba5b5;
+    }
+    .fret-cell {
+        border-right: 2px solid rgba(220, 224, 229, 0.5);
+        border-left: 1px solid rgba(255,255,255,0.03);
+        background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.08));
+    }
+    .fret-cell::before {
+        height: 2px;
+        background: linear-gradient(180deg, #f1f3f5 0%, #aeb6c2 50%, #6a7280 100%);
+    }
+    .note-marker.scale {
+        background: linear-gradient(180deg, #dfe4ea 0%, #b4bcc7 100%);
+        color: #20242b;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+    .note-marker.root {
+        background: linear-gradient(180deg, #ffb366 0%, #d56f13 100%);
+        color: #fffaf5;
+        border: 1px solid rgba(255,255,255,0.26);
+    }
+    .diagram-wrap.wood {
+        background:
+            radial-gradient(circle at 50% 12%, rgba(255,255,255,0.05), transparent 28%),
+            linear-gradient(180deg, #1d232c 0%, #121720 100%);
+        border: 1px solid rgba(255,255,255,0.05);
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.06),
+            inset 0 -10px 18px rgba(0, 0, 0, 0.34),
+            0 12px 24px rgba(5, 8, 14, 0.18);
+    }
+    .diagram-string-name,
+    .diagram-fret-label,
+    .diagram-footer,
+    .string-status,
+    .top-marker {
+        color: #9ba5b5;
+    }
+    .diagram-cell {
+        border-right: 2px solid rgba(220, 224, 229, 0.45);
+        background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.08));
+    }
+    .diagram-cell::before {
+        height: 2px;
+        background: linear-gradient(180deg, #f1f3f5 0%, #aeb6c2 45%, #6a7280 100%);
+    }
+    .diagram-dot {
+        background: linear-gradient(180deg, #ffb366 0%, #d56f13 100%);
+    }
+    div[data-testid="stSelectbox"] label,
+    div[data-testid="stRadio"] label {
+        color: #97a0af !important;
+    }
+    div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+        background: linear-gradient(180deg, #161b24 0%, #10151d 100%);
+        border-color: rgba(255,255,255,0.06);
+        color: #f3f6fb;
+        box-shadow: 0 10px 20px rgba(5, 8, 14, 0.16);
     }
     </style>
     """,
