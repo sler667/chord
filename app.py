@@ -455,7 +455,7 @@ def render_chord_diagram(symbol: str, diagram: dict | None, roman: str) -> None:
             elif status == 0:
                 status_marker = "<div class='string-status open'>o</div>"
             else:
-                status_marker = "<div class='string-status'>●</div>"
+                status_marker = "<div class='string-status'>*</div>"
 
             row_cells = []
             for fret_offset in range(5):
