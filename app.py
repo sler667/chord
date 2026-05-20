@@ -386,7 +386,7 @@ def render_fretboard(key_root: str, mode: str) -> None:
         f"<div class='fretboard-header'><div class='string-label'></div>{header}</div>",
         "<div class='fretboard-board'>",
     ]
-    for row in rows:
+    for row in reversed(rows):
         row_html = [f"<div class='string-label'>{row[0]['string']}</div>"]
         for cell in row:
             if cell["is_root"]:
